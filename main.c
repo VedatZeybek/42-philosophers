@@ -36,12 +36,13 @@ typedef struct s_philo
 
 typedef struct s_table
 {
-	pthread_mutex_t *forks;
-	t_philo	**philo;
-	int		time_to_eat;
-	int		time_to_think;
-	int		time_to_sleep;
-	int		philo_count;
+	pthread_mutex_t	*forks;
+	t_philo			**philo;
+	int				philo_count;
+	int				time_to_eat;
+	int				time_to_die;
+	int				time_to_sleep;
+	int				cycle_count;
 }	t_table;
 
 int	get_philo_count(char **argv)
@@ -52,7 +53,7 @@ int	get_philo_count(char **argv)
 	return (count);
 }
 
-t_table	*fill_table_stats(int count)
+t_table	*fill_table_stats(int count, char **argv)
 {
 	t_table	*table;
 	int		i;
@@ -61,6 +62,13 @@ t_table	*fill_table_stats(int count)
 	table = malloc(sizeof(t_table));
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->forks = malloc(sizeof(pthread_mutex_t) * count);
+	table->time_to_die = ft_atoi(argv[2]);
+	table->time_to_eat = ft_atoi(argv[3]);
+	table->time_to_sleep = ft_atoi(argv[4]);
+	if (!argv[5])
+		table->cycle_count = -1;
+	else
+		table->cycle_count = ft_atoi(argv[5]);
 	while (i < count)
 	{
 		pthread_mutex_init(&table->forks[i], NULL);
@@ -75,36 +83,53 @@ t_table	*fill_table_stats(int count)
 	return (table);
 }
 
-void	*philo_function(void* arg) 
+void	philo_life_cycle(t_philo *philo)
 {
-	t_philo			*philo = (t_philo *)arg;
 	int		left = philo->philo_id;
 	int		right = (philo->philo_id + 1) % philo->table->philo_count;
-
-	pthread_mutex_init(philo->table->forks, NULL);
-	while (1)
+	if (philo->philo_id % 2 == 0)
 	{
-		if (philo->philo_id % 2 == 0)
+		pthread_mutex_lock(&philo->table->forks[left]);
+		printf("Philo %d has took left fork...\n", philo->philo_id);
+		pthread_mutex_lock(&philo->table->forks[right]);
+		printf("Philo %d has took right fork...\n", philo->philo_id);
+	}
+	else
+	{
+		pthread_mutex_lock(&philo->table->forks[right]);
+		printf("Philo %d has took right fork...\n", philo->philo_id);
+		pthread_mutex_lock(&philo->table->forks[left]);
+		printf("Philo %d has took left fork...\n", philo->philo_id);
+	}
+	printf("Philo %d is eating...\n", philo->philo_id);
+	usleep(philo->table->time_to_eat);
+	pthread_mutex_unlock(&philo->table->forks[left]);
+	pthread_mutex_unlock(&philo->table->forks[right]);
+	printf("Philo %d is sleeping.. \n", philo->philo_id);
+	usleep(philo->table->time_to_sleep);
+	printf("Philo %d is thinking...\n", philo->philo_id);
+}
+
+void	*philo_function(void* arg) 
+{
+	t_philo	*philo = (t_philo *)arg;
+	int		i;
+
+	if (philo->table->cycle_count == -1)
+	{
+		while (1)
 		{
-			pthread_mutex_lock(&philo->table->forks[left]);
-			printf("Philo %d has took left fork...\n", philo->philo_id);
-			pthread_mutex_lock(&philo->table->forks[right]);
-			printf("Philo %d has took right fork...\n", philo->philo_id);
+			philo_life_cycle(philo);
 		}
-		else
+	}
+	else
+	{
+		i = 0;
+		while (i < philo->table->cycle_count)
 		{
-			pthread_mutex_lock(&philo->table->forks[right]);
-			printf("Philo %d has took right fork...\n", philo->philo_id);
-			pthread_mutex_lock(&philo->table->forks[left]);
-			printf("Philo %d has took left fork...\n", philo->philo_id);
+			philo_life_cycle(philo);
+			i++;
 		}
-		printf("Philo %d is eating...\n", philo->philo_id);
-		sleep(2);
-		pthread_mutex_unlock(&philo->table->forks[left]);
-		pthread_mutex_unlock(&philo->table->forks[right]);
-		printf("Philo %d is thinking...\n", philo->philo_id);
-		sleep(2);
-		printf("Philo %d is sleeping.. \n", philo->philo_id);
 	}
 	return (NULL);
 }
@@ -121,7 +146,7 @@ int	main(int argc, char **argv)
 	if (philo_count < 2 || philo_count > 20)
 	return (0);
 	
-	table = fill_table_stats(philo_count);
+	table = fill_table_stats(philo_count, argv);
 	i = 0;
 	while (i < philo_count)
 	{
