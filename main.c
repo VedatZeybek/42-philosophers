@@ -24,20 +24,21 @@ int	control_args(int argc, char **argv)
 
 typedef struct s_philo
 {
-	int	philo_id;
-	int	*data;
-	int	left_fork;
-	int	right_fork;
+	int		philo_id;
+	int		*data;
+	int		left_fork;
+	int		right_fork;
+	t_table	*table;
 }	t_philo;
 
 
 typedef struct s_table
 {
-	int	*forks;
-	int *philos;
-	int	time_to_eat;
-	int	time_to_think;
-	int	time_to_sleep;
+	int		*forks;
+	t_philo	**philo;
+	int		time_to_eat;
+	int		time_to_think;
+	int		time_to_sleep;
 }	t_table;
 
 
@@ -56,36 +57,36 @@ void	fill_stats_table(t_table *table, int count)
 	
 	i = 0;
 	table = malloc(sizeof(t_table));
-	table->philos = malloc (sizeof(int *));
+	
+	table->philo = malloc (sizeof(t_philo *) * count);
 	table->forks = malloc(sizeof(int *));
 	while (i < count)
 	{
-		table->philos[i] = 1;
-		table->forks[i] = 1;
+		table->philo[i] = malloc(sizeof(t_philo));
+		table->philo[i]->philo_id = i;
+		table->philo[i]->left_fork = 0;
+		table->philo[i]->right_fork = 0;
+		table->philo[i]->table = table;
+		table->forks[i] = i;
 		i++;
 	}
 }
 
 void	*philo_function(void* arg) 
 {
-	t_table *table = (t_table *)arg;
-	t_philo		*philo;
+	t_philo	*philo = (t_philo *)arg;
 
-	philo = malloc(sizeof(t_philo));
 	while (1)
 	{
-		printf("Philo %d has taken a fork...\n", id);
-		philo->left_fork = 1;
-		philo->right_fork = 1;
-		printf("Philo %d is eating...\n", id);
+		printf("Philo %d has taken a fork...\n", philo->philo_id);
+		
+		printf("Philo %d is eating...\n", philo->philo_id);
 		sleep(2);
-		philo->left_fork = 0;
-		philo->right_fork = 0;
-		printf("Philo %d is thinking...\n", id);
+
+		printf("Philo %d is thinking...\n", philo->philo_id);
 		sleep(2);
-		printf("Philo %d is sleeping.. \n", id);
+		printf("Philo %d is sleeping.. \n", philo->philo_id);
 	}
-	
 	return (NULL);
 }
 
