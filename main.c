@@ -60,9 +60,10 @@ t_table	*fill_table_stats(int count)
 	i = 0;
 	table = malloc(sizeof(t_table));
 	table->philo = malloc (sizeof(t_philo *) * count);
-	table->forks = malloc(sizeof(int) * count);
+	table->forks = malloc(sizeof(pthread_mutex_t) * count);
 	while (i < count)
 	{
+		pthread_mutex_init(&table->forks[i], NULL);
 		table->philo[i] = malloc(sizeof(t_philo));
 		table->philo[i]->philo_id = i;
 		table->philo[i]->left_fork = 0;
@@ -83,11 +84,20 @@ void	*philo_function(void* arg)
 	pthread_mutex_init(philo->table->forks, NULL);
 	while (1)
 	{
-		pthread_mutex_lock(&philo->table->forks[left]);
-		printf("Philo %d has took left fork...\n", philo->philo_id);
-		pthread_mutex_lock(&philo->table->forks[right]);
-		printf("Philo %d has took left fork...\n", philo->philo_id);
-
+		if (philo->philo_id % 2 == 0)
+		{
+			pthread_mutex_lock(&philo->table->forks[left]);
+			printf("Philo %d has took left fork...\n", philo->philo_id);
+			pthread_mutex_lock(&philo->table->forks[right]);
+			printf("Philo %d has took right fork...\n", philo->philo_id);
+		}
+		else
+		{
+			pthread_mutex_lock(&philo->table->forks[right]);
+			printf("Philo %d has took right fork...\n", philo->philo_id);
+			pthread_mutex_lock(&philo->table->forks[left]);
+			printf("Philo %d has took left fork...\n", philo->philo_id);
+		}
 		printf("Philo %d is eating...\n", philo->philo_id);
 		sleep(2);
 		pthread_mutex_unlock(&philo->table->forks[left]);
@@ -111,7 +121,7 @@ int	main(int argc, char **argv)
 	if (philo_count < 2 || philo_count > 20)
 	return (0);
 	
-	table = fill_stats_table(philo_count);
+	table = fill_table_stats(philo_count);
 	i = 0;
 	while (i < philo_count)
 	{
