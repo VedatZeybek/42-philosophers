@@ -36,13 +36,13 @@ typedef struct s_philo
 
 typedef struct s_table
 {
-	int		*forks;
+	pthread_mutex_t *forks;
 	t_philo	**philo;
 	int		time_to_eat;
 	int		time_to_think;
 	int		time_to_sleep;
+	int		philo_count;
 }	t_table;
-
 
 int	get_philo_count(char **argv)
 {
@@ -52,7 +52,7 @@ int	get_philo_count(char **argv)
 	return (count);
 }
 
-t_table	*fill_stats_table(int count)
+t_table	*fill_table_stats(int count)
 {
 	t_table	*table;
 	int		i;
@@ -68,7 +68,7 @@ t_table	*fill_stats_table(int count)
 		table->philo[i]->left_fork = 0;
 		table->philo[i]->right_fork = 0;
 		table->philo[i]->table = table;
-		table->forks[i] = i;
+		table->philo_count = count;
 		i++;
 	}
 	return (table);
@@ -76,16 +76,22 @@ t_table	*fill_stats_table(int count)
 
 void	*philo_function(void* arg) 
 {
-	t_philo	*philo = (t_philo *)arg;
-	
+	t_philo			*philo = (t_philo *)arg;
+	int		left = philo->philo_id;
+	int		right = (philo->philo_id + 1) % philo->table->philo_count;
 
+	pthread_mutex_init(philo->table->forks, NULL);
 	while (1)
 	{
-		printf("Philo %d has taken a fork...\n", philo->philo_id);
+		pthread_mutex_lock(&philo->table->forks[left]);
+		printf("Philo %d has took left fork...\n", philo->philo_id);
+		pthread_mutex_lock(&philo->table->forks[right]);
+		printf("Philo %d has took left fork...\n", philo->philo_id);
 
 		printf("Philo %d is eating...\n", philo->philo_id);
 		sleep(2);
-		
+		pthread_mutex_unlock(&philo->table->forks[left]);
+		pthread_mutex_unlock(&philo->table->forks[right]);
 		printf("Philo %d is thinking...\n", philo->philo_id);
 		sleep(2);
 		printf("Philo %d is sleeping.. \n", philo->philo_id);
