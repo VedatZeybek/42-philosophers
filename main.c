@@ -83,54 +83,62 @@ t_table	*fill_table_stats(int count, char **argv)
 	return (table);
 }
 
-void	philo_life_cycle(t_philo *philo)
+long	time_diff_ms(struct timeval start, struct timeval end)
 {
-	int		left = philo->philo_id;
-	int		right = (philo->philo_id + 1) % philo->table->philo_count;
-	if (philo->philo_id % 2 == 0)
-	{
-		pthread_mutex_lock(&philo->table->forks[left]);
-		printf("Philo %d has took left fork...\n", philo->philo_id);
-		pthread_mutex_lock(&philo->table->forks[right]);
-		printf("Philo %d has took right fork...\n", philo->philo_id);
-	}
-	else
-	{
-		pthread_mutex_lock(&philo->table->forks[right]);
-		printf("Philo %d has took right fork...\n", philo->philo_id);
-		pthread_mutex_lock(&philo->table->forks[left]);
-		printf("Philo %d has took left fork...\n", philo->philo_id);
-	}
-	printf("Philo %d is eating...\n", philo->philo_id);
-	usleep(philo->table->time_to_eat);
-	pthread_mutex_unlock(&philo->table->forks[left]);
-	pthread_mutex_unlock(&philo->table->forks[right]);
-	printf("Philo %d is sleeping.. \n", philo->philo_id);
-	usleep(philo->table->time_to_sleep);
-	printf("Philo %d is thinking...\n", philo->philo_id);
+	return ((end.tv_sec - start.tv_sec) * 1000) + ((end.tv_usec - start.tv_usec) / 1000);
 }
+
+void	philo_life_cycle(t_philo *philo, int left, int right)
+{
+	struct timeval tv1;
+	struct timeval tv2;
+	int i = 0;
+	while (i < philo->table->cycle_count)
+	{
+		if (philo->philo_id % 2 == 0)
+		{
+			pthread_mutex_lock(&philo->table->forks[left]);
+			printf("Philo %d has took left fork...\n", philo->philo_id);
+			pthread_mutex_lock(&philo->table->forks[right]);
+			printf("Philo %d has took right fork...\n", philo->philo_id);
+		}
+		else
+		{
+			pthread_mutex_lock(&philo->table->forks[right]);
+			printf("Philo %d has took right fork...\n", philo->philo_id);
+			pthread_mutex_lock(&philo->table->forks[left]);
+			printf("Philo %d has took left fork...\n", philo->philo_id);
+		}
+		printf("Philo %d is eating...\n", philo->philo_id);
+		gettimeofday(&tv1, NULL);
+		usleep(philo->table->time_to_eat);
+		pthread_mutex_unlock(&philo->table->forks[left]);
+		pthread_mutex_unlock(&philo->table->forks[right]);
+		printf("Philo %d is sleeping.. \n", philo->philo_id);
+		usleep(philo->table->time_to_sleep);
+		printf("Philo %d is thinking...\n", philo->philo_id);
+		gettimeofday(&tv2, NULL);
+		long diff = time_diff_ms(tv2,  tv1);
+		if (diff > philo->table->time_to_die)
+		{
+			printf("Philo %d died :(", philo->philo_id);
+			break ;
+		}
+		i++;
+	}
+}
+
 
 void	*philo_function(void* arg) 
 {
 	t_philo	*philo = (t_philo *)arg;
 	int		i;
+	int		left = philo->philo_id;
+	int		right = (philo->philo_id + 1) % philo->table->philo_count;
+	
 
-	if (philo->table->cycle_count == -1)
-	{
-		while (1)
-		{
-			philo_life_cycle(philo);
-		}
-	}
-	else
-	{
-		i = 0;
-		while (i < philo->table->cycle_count)
-		{
-			philo_life_cycle(philo);
-			i++;
-		}
-	}
+	philo_life_cycle(philo, left, right);
+
 	return (NULL);
 }
 
@@ -141,7 +149,6 @@ int	main(int argc, char **argv)
 	int		i;
 	t_table	*table;
 
-	
 	philo_count = get_philo_count(argv);
 	if (philo_count < 2 || philo_count > 20)
 	return (0);

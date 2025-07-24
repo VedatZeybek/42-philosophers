@@ -6,6 +6,7 @@
 #include "pthread.h"
 #include "stdio.h"
 #include <unistd.h> 
+#include <sys/time.h>
 
 
 int	ft_atoi(const char *str);
