@@ -27,6 +27,7 @@ typedef struct s_table t_table;
 typedef struct s_philo
 {
 	struct timeval	last_eat_time;
+	pthread_mutex_t last_eat_mutex;
 	pthread_t		thread;
 	t_table			*table;
 	int				philo_id;
@@ -48,6 +49,23 @@ typedef struct s_table
 	int				time_to_sleep;
 	int				cycle_count;
 }	t_table;
+
+void cleanup_table(t_table *table)
+{
+	int	i;
+	i = 0;
+    
+	while (i < table->philo_count)
+	{
+		pthread_mutex_destroy(&table->forks[i]);
+		free(table->philo[i]);
+		i++;
+	}
+	pthread_mutex_destroy(&table->print_mutex);
+	free(table->forks);
+	free(table->philo);
+	free(table);
+}
 
 int	get_philo_count(char **argv)
 {
@@ -90,17 +108,28 @@ void	*death_checker(void *arg)
 	while (!table->simulation_end)
 	{
 		i = 0;
-		while (table->philo[i])
+		while (i < table->philo_count)
 		{
 			gettimeofday(&now, NULL);
+			pthread_mutex_lock(&table->philo[i]->last_eat_mutex);
 			time_diff = time_diff_ms(table->philo[i]->last_eat_time, now);
-			if (table->time_to_die > time_diff)
-
+			pthread_mutex_unlock(&table->philo[i]->last_eat_mutex);
+			if (time_diff > table->time_to_die)
+			{
+				pthread_mutex_lock(&table->print_mutex);
+				if (!table->simulation_end)
+				{
+					printf("%ld %d died\n", get_timestamp(table), table->philo[i]->philo_id);
+					table->simulation_end = 1;
+				}
+				pthread_mutex_unlock(&table->print_mutex);
+				return (NULL);
+			}
+			i++;
 		}
-		
-
+		usleep(1000);
 	}
-
+	return (NULL);
 }
 
 t_table	*fill_table_stats(int count, char **argv)
@@ -112,6 +141,9 @@ t_table	*fill_table_stats(int count, char **argv)
 	table = malloc(sizeof(t_table));
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->forks = malloc(sizeof(pthread_mutex_t) * count);
+	table->philo_count = count;
+	table->simulation_end = 0;
+	pthread_mutex_init(&table->print_mutex, NULL);
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);
 	table->time_to_sleep = ft_atoi(argv[4]);
@@ -124,11 +156,12 @@ t_table	*fill_table_stats(int count, char **argv)
 	{
 		pthread_mutex_init(&table->forks[i], NULL);
 		table->philo[i] = malloc(sizeof(t_philo));
+		pthread_mutex_init(&table->philo[i]->last_eat_mutex, NULL);
 		table->philo[i]->philo_id = i + 1;
 		table->philo[i]->left_fork = 0;
 		table->philo[i]->right_fork = 0;
 		table->philo[i]->table = table;
-		table->philo_count = count;
+		table->philo[i]->last_eat_time = table->start_time;
 		i++;
 	}
 	return (table);
@@ -136,8 +169,16 @@ t_table	*fill_table_stats(int count, char **argv)
 
 void	philo_life_cycle(t_philo *philo, int left, int right)
 {
-	int 			i;
+	int i;
 
+	if (philo->table->philo_count == 1)
+	{
+		pthread_mutex_lock(&philo->table->forks[left]);
+		safe_print("has taken a fork", philo);
+		usleep(philo->table->time_to_die * 1000 + 1000);
+		pthread_mutex_unlock(&philo->table->forks[left]);
+		return ;
+	}
 	i = 0;
 	while ((philo->table->cycle_count == -1 || i < philo->table->cycle_count) 
 				&& !philo->table->simulation_end)
@@ -173,7 +214,9 @@ void	philo_life_cycle(t_philo *philo, int left, int right)
 			break ;
 		}
 		safe_print("is eating.", philo);
+		pthread_mutex_lock(&philo->last_eat_mutex);
 		gettimeofday(&philo->last_eat_time, NULL);
+		pthread_mutex_unlock(&philo->last_eat_mutex);
 		usleep(philo->table->time_to_eat * 1000);
 		pthread_mutex_unlock(&philo->table->forks[left]);
 		pthread_mutex_unlock(&philo->table->forks[right]);
@@ -190,8 +233,8 @@ void	philo_life_cycle(t_philo *philo, int left, int right)
 void	*philo_function(void* arg) 
 {
 	t_philo	*philo = (t_philo *)arg;
-	int		left = philo->philo_id;
-	int		right = (philo->philo_id + 1) % philo->table->philo_count;
+	int		left = philo->philo_id - 1;
+	int		right = (philo->philo_id) % philo->table->philo_count;
 	
 	philo_life_cycle(philo, left, right);
 	return (NULL);
@@ -200,21 +243,29 @@ void	*philo_function(void* arg)
 int	main(int argc, char **argv)
 {
 	
-	int		philo_count;
-	int		i;
-	t_table	*table;
+	int			philo_count;
+	int			i;
+	t_table		*table;
+	pthread_t	death_thread;
 
 	philo_count = get_philo_count(argv);
 	if (philo_count < 2 || philo_count > 20)
-	return (0);
+		return (0);
+	
 	
 	table = fill_table_stats(philo_count, argv);
+	pthread_create(&death_thread, NULL, death_checker, table);
+	
 	i = 0;
 	while (i < philo_count)
 	{
 		pthread_create(&(table->philo[i]->thread), NULL, philo_function, table->philo[i]);
 		i++;
 	}
+
+	
+	pthread_join(death_thread, NULL);
+
 	i = 0;
 	while (i < philo_count)
 	{
