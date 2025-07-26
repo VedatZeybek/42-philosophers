@@ -105,6 +105,7 @@ void	*death_checker(void *arg)
 	int		i;
 
 	table = (t_table *)(arg);
+	usleep(1000);
 	while (!table->simulation_end)
 	{
 		i = 0;
@@ -179,6 +180,8 @@ void	philo_life_cycle(t_philo *philo, int left, int right)
 		pthread_mutex_unlock(&philo->table->forks[left]);
 		return ;
 	}
+	if (philo->philo_id % 2 == 0)
+		usleep(15000);
 	i = 0;
 	while ((philo->table->cycle_count == -1 || i < philo->table->cycle_count) 
 				&& !philo->table->simulation_end)
@@ -213,10 +216,10 @@ void	philo_life_cycle(t_philo *philo, int left, int right)
 			pthread_mutex_unlock(&philo->table->forks[right]);
 			break ;
 		}
-		safe_print("is eating.", philo);
 		pthread_mutex_lock(&philo->last_eat_mutex);
 		gettimeofday(&philo->last_eat_time, NULL);
 		pthread_mutex_unlock(&philo->last_eat_mutex);
+		safe_print("is eating.", philo);
 		usleep(philo->table->time_to_eat * 1000);
 		pthread_mutex_unlock(&philo->table->forks[left]);
 		pthread_mutex_unlock(&philo->table->forks[right]);
@@ -235,7 +238,7 @@ void	*philo_function(void* arg)
 	t_philo	*philo = (t_philo *)arg;
 	int		left = philo->philo_id - 1;
 	int		right = (philo->philo_id) % philo->table->philo_count;
-	
+
 	philo_life_cycle(philo, left, right);
 	return (NULL);
 }
@@ -249,12 +252,11 @@ int	main(int argc, char **argv)
 	pthread_t	death_thread;
 
 	philo_count = get_philo_count(argv);
-	if (philo_count < 2 || philo_count > 20)
+	if (philo_count < 1 || philo_count > 200)
 		return (0);
 	
 	
 	table = fill_table_stats(philo_count, argv);
-	pthread_create(&death_thread, NULL, death_checker, table);
 	
 	i = 0;
 	while (i < philo_count)
@@ -262,6 +264,7 @@ int	main(int argc, char **argv)
 		pthread_create(&(table->philo[i]->thread), NULL, philo_function, table->philo[i]);
 		i++;
 	}
+	pthread_create(&death_thread, NULL, death_checker, table);
 
 	
 	pthread_join(death_thread, NULL);
