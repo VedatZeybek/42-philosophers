@@ -45,6 +45,32 @@ static int	safe_sleep(t_philo *philo, long sleep_duration, long last_meal_time)
 	return (0);
 }
 
+static int	philo_eat(t_philo *philo, long *last_meal_time)
+{
+	if (is_dead(philo, *last_meal_time))
+		return (1);
+	sem_wait(philo->table->forks);
+	printf("%ld %d has taken a fork\n", get_timestamp(philo->table), philo->philo_id);
+	if (is_dead(philo, *last_meal_time))
+	{
+		sem_post(philo->table->forks);
+		return (1);
+	}
+	sem_wait(philo->table->forks);
+	printf("%ld %d has taken a fork\n", get_timestamp(philo->table), philo->philo_id);
+	*last_meal_time = get_timestamp(philo->table);
+	printf("%ld %d is eating\n", get_timestamp(philo->table), philo->philo_id);
+	if (safe_sleep(philo, philo->table->time_to_eat, *last_meal_time))
+	{
+		sem_post(philo->table->forks);
+		sem_post(philo->table->forks);
+		return (1);
+	}
+	sem_post(philo->table->forks);
+	sem_post(philo->table->forks);
+	return (0);
+}
+
 void	philo_process(t_philo *philo)
 {
 	int		i;
@@ -53,32 +79,11 @@ void	philo_process(t_philo *philo)
 	i = 0;
 	if (one_philo(philo))
 		return ;
-	
 	last_meal_time = get_timestamp(philo->table);
-	
 	while (philo->table->cycle_count == -1 || i < philo->table->cycle_count)
 	{
-		if (is_dead(philo, last_meal_time))
+		if (philo_eat(philo, &last_meal_time))
 			return ;
-		sem_wait(philo->table->forks);
-		printf("%ld %d has taken a fork\n", get_timestamp(philo->table), philo->philo_id);
-		if (is_dead(philo, last_meal_time))
-		{
-			sem_post(philo->table->forks);
-			return ;
-		}
-		sem_wait(philo->table->forks);
-		printf("%ld %d has taken a fork\n", get_timestamp(philo->table), philo->philo_id);
-		last_meal_time = get_timestamp(philo->table);
-		printf("%ld %d is eating\n", get_timestamp(philo->table), philo->philo_id);
-		if (safe_sleep(philo, philo->table->time_to_eat, last_meal_time))
-		{
-			sem_post(philo->table->forks);
-			sem_post(philo->table->forks);
-			return ;
-		}
-		sem_post(philo->table->forks);
-		sem_post(philo->table->forks);
 		printf("%ld %d is sleeping\n", get_timestamp(philo->table), philo->philo_id);
 		if (safe_sleep(philo, philo->table->time_to_sleep, last_meal_time))
 			return ;
