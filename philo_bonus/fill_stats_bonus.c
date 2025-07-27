@@ -1,4 +1,12 @@
-#include "philosophers.h"
+#include "philosophers_bonus.h"
+
+int	get_philo_count(char **argv)
+{
+	int	count;
+
+	count = ft_atoi(argv[1]);
+	return (count);
+}
 
 static void	fill_philo_stats(t_table *table)
 {
@@ -7,12 +15,8 @@ static void	fill_philo_stats(t_table *table)
 	i = 0;
 	while (i < table->philo_count)
 	{
-		pthread_mutex_init(&table->forks[i], NULL);
 		table->philo[i] = malloc(sizeof(t_philo));
-		pthread_mutex_init(&table->philo[i]->last_eat_mutex, NULL);
 		table->philo[i]->philo_id = i + 1;
-		table->philo[i]->left_fork = 0;
-		table->philo[i]->right_fork = 0;
 		table->philo[i]->table = table;
 		table->philo[i]->last_eat_time = table->start_time;
 		i++;
@@ -25,10 +29,8 @@ t_table	*fill_table_stats(int count, char **argv)
 	
 	table = malloc(sizeof(t_table));
 	table->philo = malloc (sizeof(t_philo *) * count);
-	table->forks = malloc(sizeof(pthread_mutex_t) * count);
 	table->philo_count = count;
 	table->simulation_end = 0;
-	pthread_mutex_init(&table->print_mutex, NULL);
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);
 	table->time_to_sleep = ft_atoi(argv[4]);
