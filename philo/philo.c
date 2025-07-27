@@ -13,7 +13,7 @@ void	*philo_function(void* arg)
 	right = (philo->philo_id) % philo->table->philo_count;
 	first_fork = left < right ? left : right;
 	second_fork = left < right ? right : left;
-	philo_life_cycle(philo, left, right);
+	philo_life_cycle(philo, first_fork, second_fork);
 	return (NULL);
 }
 
@@ -24,6 +24,8 @@ int	main(int argc, char **argv)
 	t_table		*table;
 	pthread_t	death_thread;
 
+	if (!validate_arguments(argc, argv))
+		return (1);
 	philo_count = get_philo_count(argv);
 	if (philo_count < 1 || philo_count > 200)
 		return (0);

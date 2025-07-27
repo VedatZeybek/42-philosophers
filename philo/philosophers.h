@@ -40,13 +40,17 @@ typedef struct s_table
 
 
 int		ft_atoi(const char *str);
+int		validate_arguments(int argc, char **argv);
 int		get_philo_count(char **argv);
 long	time_diff_ms(struct timeval start, struct timeval end);
 long	get_timestamp(t_table *table);
 void	safe_print(char *str, t_philo *philo);
 void	cleanup_table(t_table *table);
+void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
 void	*death_checker(void *arg);
+
 t_table	*fill_table_stats(int count, char **argv);
+
 
 
 
