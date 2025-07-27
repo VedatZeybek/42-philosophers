@@ -26,8 +26,13 @@ static void	fill_philo_stats(t_table *table)
 t_table	*fill_table_stats(int count, char **argv)
 {
 	t_table	*table;
-	
+
 	table = malloc(sizeof(t_table));
+	table->forks = sem_open("/forks", O_CREAT, 0644, count);
+	if (table->forks == SEM_FAILED) {
+		perror("sem_open failed");
+		exit(1);
+	}
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->philo_count = count;
 	table->simulation_end = 0;

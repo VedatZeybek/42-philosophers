@@ -1,12 +1,13 @@
 #ifndef PHILOSOPHERS_BONUS_H
 # define  PHILOSOPHERS_BONUS_H
 
-
 #include "stdlib.h"
 #include "stdio.h"
 #include <unistd.h> 
 #include <sys/time.h>
-
+#include "fcntl.h"
+#include <sys/wait.h>
+#include <semaphore.h>
 
 struct s_table;
 typedef struct s_table t_table;
@@ -21,8 +22,9 @@ typedef struct s_philo
 
 typedef struct s_table
 {
-	t_philo			**philo;
 	struct timeval	start_time;
+	t_philo			**philo;
+	sem_t			*forks;
 	int				simulation_end;
 	int				philo_count;
 	int				time_to_eat;
