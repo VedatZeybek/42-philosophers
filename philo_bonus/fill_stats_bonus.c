@@ -33,6 +33,12 @@ t_table	*fill_table_stats(int count, char **argv)
 		perror("sem_open failed");
 		exit(1);
 	}
+	table->dining_room = sem_open("/dining_room", O_CREAT, 0644, count - 1);
+	if (table->dining_room == SEM_FAILED)
+	{
+		perror("sem_open dining_room failed");
+		exit(1);
+	}
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->philo_count = count;
 	table->simulation_end = 0;

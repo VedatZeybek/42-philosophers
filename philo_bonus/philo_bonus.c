@@ -9,6 +9,8 @@ int	main(int argc, char **argv)
 	pid_t	dead_pid;
 
 	i = 0;
+	if (validate_arguments(argc, argv))
+		exit(EXIT_FAILURE);
 	count = get_philo_count(argv);
 	table = fill_table_stats(count, argv);
 	pids = malloc(sizeof(pid_t) * count);

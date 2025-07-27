@@ -25,6 +25,7 @@ typedef struct s_table
 	struct timeval	start_time;
 	t_philo			**philo;
 	sem_t			*forks;
+	sem_t			*dining_room;
 	int				simulation_end;
 	int				philo_count;
 	int				time_to_eat;
@@ -39,10 +40,7 @@ int		validate_arguments(int argc, char **argv);
 int		get_philo_count(char **argv);
 long	time_diff_ms(struct timeval start, struct timeval end);
 long	get_timestamp(t_table *table);
-void	safe_print(char *str, t_philo *philo);
-void	cleanup_table(t_table *table);
-void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
-void	*death_checker(void *arg);
+void	philo_process(t_philo *philo);
 
 t_table	*fill_table_stats(int count, char **argv);
 

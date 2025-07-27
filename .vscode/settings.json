@@ -1,8 +1,0 @@
-{
-	"files.associations": {
-		"wait.h": "c",
-		"semaphore.h": "c",
-		"fcntl.h": "c",
-		"philosophers_bonus.h": "c"
-	}
-}
