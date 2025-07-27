@@ -31,7 +31,7 @@ void	*death_checker(void *arg)
 			}
 			i++;
 		}
-		usleep(10000);
+		usleep(1000);
 	}
 	return (NULL);
 }
@@ -70,68 +70,73 @@ t_table	*fill_table_stats(int count, char **argv)
 	}
 	return (table);
 }
-void philo_life_cycle(t_philo *philo, int left, int right)
-{
-    int first_fork = left < right ? left : right; // Daha düşük numaralı çatal
-    int second_fork = left < right ? right : left; // Daha yüksek numaralı çatal
-    int i = 0;
 
-    if (philo->table->philo_count == 1)
-    {
-        pthread_mutex_lock(&philo->table->forks[left]);
-        safe_print("has taken a fork", philo);
-        usleep(philo->table->time_to_die * 1000);
-        pthread_mutex_unlock(&philo->table->forks[left]);
-        return ;
-    }
-    while ((philo->table->cycle_count == -1 || i < philo->table->cycle_count) 
-           && !philo->table->simulation_end)
-    {
-        pthread_mutex_lock(&philo->table->forks[first_fork]);
-        safe_print("has taken a fork", philo);
-        if (philo->table->simulation_end)
-        {
-            pthread_mutex_unlock(&philo->table->forks[first_fork]);
-            break;
-        }
-        pthread_mutex_lock(&philo->table->forks[second_fork]);
-        safe_print("has taken a fork", philo);
-        if (philo->table->simulation_end)
-        {
-            pthread_mutex_unlock(&philo->table->forks[first_fork]);
-            pthread_mutex_unlock(&philo->table->forks[second_fork]);
-            break;
-        }
+void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
+{
+	int i = 0;
+
+	if (philo->table->philo_count == 1)
+	{
+		pthread_mutex_lock(&philo->table->forks[first_fork]);
+		safe_print("has taken a fork", philo);
+		usleep(philo->table->time_to_die * 1000);
+		pthread_mutex_unlock(&philo->table->forks[first_fork]);
+		return ;
+	}
+	while ((philo->table->cycle_count == -1 || i < philo->table->cycle_count) 
+		   && !philo->table->simulation_end)
+	{
+		pthread_mutex_lock(&philo->table->forks[first_fork]);
+		safe_print("has taken a fork", philo);
+		if (philo->table->simulation_end)
+		{
+			pthread_mutex_unlock(&philo->table->forks[first_fork]);
+			break;
+		}
+		pthread_mutex_lock(&philo->table->forks[second_fork]);
+		safe_print("has taken a fork", philo);
+		if (philo->table->simulation_end)
+		{
+			pthread_mutex_unlock(&philo->table->forks[first_fork]);
+			pthread_mutex_unlock(&philo->table->forks[second_fork]);
+			break;
+		}
 		pthread_mutex_lock(&philo->last_eat_mutex);
 		gettimeofday(&philo->last_eat_time, NULL);
 		pthread_mutex_unlock(&philo->last_eat_mutex);
-        safe_print("is eating.", philo);
-        usleep(philo->table->time_to_eat * 1000);
-        pthread_mutex_unlock(&philo->table->forks[first_fork]);
-        pthread_mutex_unlock(&philo->table->forks[second_fork]);
-        if (philo->table->simulation_end)
-            break ;
-        safe_print("is sleeping", philo);
-        usleep(philo->table->time_to_sleep * 1000);
-        safe_print("is thinking", philo);
-        if (philo->table->cycle_count != -1)
-            i++;
-    }
+		safe_print("is eating.", philo);
+		usleep(philo->table->time_to_eat * 1000);
+		pthread_mutex_unlock(&philo->table->forks[first_fork]);
+		pthread_mutex_unlock(&philo->table->forks[second_fork]);
+		if (philo->table->simulation_end)
+			break;
+		safe_print("is sleeping", philo);
+		usleep(philo->table->time_to_sleep * 1000);
+		safe_print("is thinking", philo);
+		if (philo->table->cycle_count != -1)
+			i++;
+	}
 }
 
 void	*philo_function(void* arg) 
 {
-	t_philo	*philo = (t_philo *)arg;
-	int		left = philo->philo_id - 1;
-	int		right = (philo->philo_id) % philo->table->philo_count;
-
+	t_philo	*philo;
+	int		left;
+	int		right;
+	int		first_fork;
+	int		second_fork;
+	
+	philo = (t_philo *)arg;
+	left = philo->philo_id - 1;
+	right = (philo->philo_id) % philo->table->philo_count;
+	first_fork = left < right ? left : right;
+	second_fork = left < right ? right : left;
 	philo_life_cycle(philo, left, right);
 	return (NULL);
 }
 
 int	main(int argc, char **argv)
 {
-	
 	int			philo_count;
 	int			i;
 	t_table		*table;
@@ -155,16 +160,4 @@ int	main(int argc, char **argv)
 		pthread_join(table->philo[i]->thread, NULL);
 		i++;
 	}
-	// i = 0;
-	// while (i < table->philo_count)
-	// {
-	// 	pthread_mutex_destroy(&table->philo[i]->last_eat_mutex);
-	// 	pthread_mutex_destroy(&table->forks[i]);
-	// 	free(table->philo[i]);
-	// 	i++;
-	// }
-	// pthread_mutex_destroy(&table->print_mutex);
-	// free(table->forks);
-	// free(table->philo);
-	// free(table);
 }

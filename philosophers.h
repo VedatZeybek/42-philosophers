@@ -44,6 +44,7 @@ void	safe_print(char *str, t_philo *philo);
 int		get_philo_count(char **argv);
 long	time_diff_ms(struct timeval start, struct timeval end);
 long	get_timestamp(t_table *table);
+void	 cleanup_table(t_table *table);
 
 
 
