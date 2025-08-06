@@ -18,20 +18,20 @@ void	safe_print(char *str, t_philo *philo)
 
 void	cleanup_table(t_table *table)
 {
-    int i = 0;
-    
-    while (i < table->philo_count)
-    {
-        pthread_mutex_destroy(&table->philo[i]->last_eat_mutex);
-        pthread_mutex_destroy(&table->forks[i]);
-        free(table->philo[i]);
-        i++;
-    }
-    pthread_mutex_destroy(&table->print_mutex);
+	int	i;
 
-    free(table->forks);
-    free(table->philo);
-    free(table);
+	i = 0;
+	while (i < table->philo_count)
+	{
+		pthread_mutex_destroy(&table->philo[i]->last_eat_mutex);
+		pthread_mutex_destroy(&table->forks[i]);
+		free(table->philo[i]);
+		i++;
+	}
+	pthread_mutex_destroy(&table->print_mutex);
+	free(table->forks);
+	free(table->philo);
+	ree(table);
 }
 
 int	is_valid_number(char *str)
@@ -57,7 +57,7 @@ int	validate_arguments(int argc, char **argv)
 
 	if (argc < 5 || argc > 6)
 	{
-		printf("Usage: ./philosophers number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
+		printf("Invalid Argument Number.\n");
 		return (0);
 	}
 	i = 1;
@@ -65,13 +65,13 @@ int	validate_arguments(int argc, char **argv)
 	{
 		if (!is_valid_number(argv[i]))
 		{
-			printf("Error: '%s' is not a valid positive number\n", argv[i]);
+			printf("Error: '%s' is not a valid.\n", argv[i]);
 			return (0);
 		}
 		value = ft_atoi(argv[i]);
 		if (value <= 0)
 		{
-			printf("Error: All arguments must be positive numbers\n");
+			printf("Error: All arguments must be positive numbers.\n");
 			return (0);
 		}
 		i++;

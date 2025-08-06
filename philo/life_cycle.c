@@ -57,6 +57,7 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 
 	if (one_philo(philo, first_fork))
 		return ;
+	//usleep(100 * philo->philo_id);
 	while ((philo->table->cycle_count == -1 || i < philo->table->cycle_count) 
 		   && !philo->table->simulation_end)
 	{

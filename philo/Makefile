@@ -3,7 +3,7 @@ NAME		=	philo
 FILES		=	death.c error_and_print.c fill_stats.c ft_atoi.c \
 				life_cycle.c philo.c time.c
 
-SRCS		=	$(addprefix philo/, $(FILES))
+SRCS		=	$(FILES)
 OBJS		=	$(SRCS:.c=.o)
 
 CC			=	cc
