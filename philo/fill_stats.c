@@ -11,8 +11,6 @@ static void	fill_philo_stats(t_table *table)
 		table->philo[i] = malloc(sizeof(t_philo));
 		pthread_mutex_init(&table->philo[i]->last_eat_mutex, NULL);
 		table->philo[i]->philo_id = i + 1;
-		table->philo[i]->left_fork = 0;
-		table->philo[i]->right_fork = 0;
 		table->philo[i]->table = table;
 		table->philo[i]->last_eat_time = table->start_time;
 		i++;

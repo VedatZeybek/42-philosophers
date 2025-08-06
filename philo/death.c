@@ -8,7 +8,7 @@ void	*death_checker(void *arg)
 	int		i;
 
 	table = (t_table *)(arg);
-	usleep(10000);
+	usleep(100);
 	while (!table->simulation_end)
 	{
 		i = 0;
@@ -31,7 +31,7 @@ void	*death_checker(void *arg)
 			}
 			i++;
 		}
-		usleep(1000);
+		usleep(100);
 	}
 	return (NULL);
 }

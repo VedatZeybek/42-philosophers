@@ -20,8 +20,6 @@ typedef struct s_philo
 	t_table			*table;
 	int				philo_id;
 	int				*data;
-	int				left_fork;
-	int				right_fork;
 }	t_philo;
 
 typedef struct s_table
@@ -48,7 +46,6 @@ void	safe_print(char *str, t_philo *philo);
 void	cleanup_table(t_table *table);
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
 void	*death_checker(void *arg);
-
 t_table	*fill_table_stats(int count, char **argv);
 
 

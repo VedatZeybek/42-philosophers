@@ -31,7 +31,7 @@ void	cleanup_table(t_table *table)
 	pthread_mutex_destroy(&table->print_mutex);
 	free(table->forks);
 	free(table->philo);
-	ree(table);
+	free(table);
 }
 
 int	is_valid_number(char *str)
