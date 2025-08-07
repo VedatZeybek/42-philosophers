@@ -25,7 +25,7 @@ typedef struct s_table
 	struct timeval	start_time;
 	t_philo			**philo;
 	sem_t			*forks;
-	int				simulation_end;
+	sem_t			*death;
 	int				philo_count;
 	int				time_to_eat;
 	int				time_to_die;

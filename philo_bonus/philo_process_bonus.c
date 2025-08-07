@@ -21,6 +21,7 @@ static int	is_dead(t_philo *philo, long last_eat)
 	if (current_time - last_eat > philo->table->time_to_die)
 	{
 		printf("%ld %d died\n", current_time, philo->philo_id);
+		sem_post(philo->table->death);
 		return (1);
 	}
 	return (0);
@@ -38,7 +39,7 @@ static int	safe_sleep(t_philo *philo, long sleep_duration, long last_meal_time)
 			return (1);
 		elapsed = get_timestamp(philo->table) - sleep_start;
 		if (elapsed >= sleep_duration)
-			break;
+			break ;
 		usleep(1000);
 	}
 	return (0);
@@ -79,7 +80,7 @@ void	philo_process(t_philo *philo)
 	if (one_philo(philo))
 		return ;
 	last_meal_time = get_timestamp(philo->table);
-	while (philo->table->simulation_end != 1)
+	while (1)
 	{
 		if (philo_eat(philo, &last_meal_time))
 			return ;

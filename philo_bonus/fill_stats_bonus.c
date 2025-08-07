@@ -29,9 +29,9 @@ t_table	*fill_table_stats(char **argv)
 		perror("sem_open failed");
 		exit(1);
 	}
+	table->death = sem_open("/death", O_CREAT, 0644, 0);
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->philo_count = count;
-	table->simulation_end = 0;
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);
 	table->time_to_sleep = ft_atoi(argv[4]);

@@ -1,4 +1,5 @@
 #include "philosophers_bonus.h"
+#include "signal.h"
 
 int	main(int argc, char **argv)
 {
@@ -28,6 +29,14 @@ int	main(int argc, char **argv)
 		}
 		i++;
 	}
+	sem_wait(table->death);
+
+	i = 0;
+	while (i < table->philo_count)
+	{
+		kill(pids[i], SIGTERM);
+		i++;
+	}	
 	i = 0;
 	while (i < table->philo_count)
 	{
@@ -36,6 +45,8 @@ int	main(int argc, char **argv)
 	}
 	sem_close(table->forks);
 	sem_unlink("/forks");
+	sem_close(table->death);
+	sem_unlink("/death");
 	free(pids);
 	return (0);
 }
