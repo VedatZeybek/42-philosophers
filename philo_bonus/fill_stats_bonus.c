@@ -1,13 +1,5 @@
 #include "philosophers_bonus.h"
 
-int	get_philo_count(char **argv)
-{
-	int	count;
-
-	count = ft_atoi(argv[1]);
-	return (count);
-}
-
 static void	fill_philo_stats(t_table *table)
 {
 	int	i;
@@ -23,20 +15,18 @@ static void	fill_philo_stats(t_table *table)
 	}
 }
 
-t_table	*fill_table_stats(int count, char **argv)
+t_table	*fill_table_stats(char **argv)
 {
 	t_table	*table;
+	int		count;
 
+	count = ft_atoi(argv[1]);
 	table = malloc(sizeof(t_table));
-	table->forks = sem_open("/forks", O_CREAT, 0644, count);
-	if (table->forks == SEM_FAILED) {
-		perror("sem_open failed");
-		exit(1);
-	}
-	table->dining_room = sem_open("/dining_room", O_CREAT, 0644, count - 1);
-	if (table->dining_room == SEM_FAILED)
+	sem_unlink("/forks");
+	table->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, count);
+	if (table->forks == SEM_FAILED) 
 	{
-		perror("sem_open dining_room failed");
+		perror("sem_open failed");
 		exit(1);
 	}
 	table->philo = malloc (sizeof(t_philo *) * count);

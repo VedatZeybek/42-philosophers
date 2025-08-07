@@ -3,20 +3,17 @@
 int	main(int argc, char **argv)
 {
 	t_table	*table;
-	int		count;
 	int		i;
 	pid_t	*pids;
-	pid_t	dead_pid;
 
 	i = 0;
-	if (validate_arguments(argc, argv))
+	if (!validate_arguments(argc, argv))
 		exit(EXIT_FAILURE);
-	count = get_philo_count(argv);
-	table = fill_table_stats(count, argv);
-	pids = malloc(sizeof(pid_t) * count);
+	table = fill_table_stats(argv);
+	pids = malloc(sizeof(pid_t) * table->philo_count);
 	if (!pids)
 		return (1);
-	while (i < count)
+	while (i < table->philo_count)
 	{
 		pids[i] = fork();
 		if (pids[i] == 0)
@@ -31,19 +28,10 @@ int	main(int argc, char **argv)
 		}
 		i++;
 	}
-	dead_pid = waitpid(-1, NULL, 0);
 	i = 0;
-	while (i < count)
+	while (i < table->philo_count)
 	{
-		if (pids[i] != dead_pid)
-			kill(pids[i], 9);
-		i++;
-	}
-	i = 0;
-	while (i < count)
-	{
-		if (pids[i] != dead_pid)
-			waitpid(pids[i], NULL, 0);
+		waitpid(pids[i], 0, 0);
 		i++;
 	}
 	sem_close(table->forks);

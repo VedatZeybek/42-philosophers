@@ -19,10 +19,12 @@ static void	fill_philo_stats(t_table *table)
 	}
 }
 
-t_table	*fill_table_stats(int count, char **argv)
+t_table	*fill_table_stats(char **argv)
 {
 	t_table	*table;
-	
+	int		count;
+
+	count = ft_atoi(argv[1]);
 	table = malloc(sizeof(t_table));
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->forks = malloc(sizeof(pthread_mutex_t) * count);

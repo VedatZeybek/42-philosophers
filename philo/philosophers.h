@@ -45,6 +45,6 @@ void	safe_print(char *str, t_philo *philo);
 void	cleanup_table(t_table *table);
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
 void	*death_checker(void *arg);
-t_table	*fill_table_stats(int count, char **argv);
+t_table	*fill_table_stats(char **argv);
 
 #endif

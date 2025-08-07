@@ -79,7 +79,7 @@ void	philo_process(t_philo *philo)
 	if (one_philo(philo))
 		return ;
 	last_meal_time = get_timestamp(philo->table);
-	while (philo->table->cycle_count == -1 || i < philo->table->cycle_count)
+	while (philo->table->simulation_end != 1)
 	{
 		if (philo_eat(philo, &last_meal_time))
 			return ;

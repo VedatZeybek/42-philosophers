@@ -40,19 +40,15 @@ static void	*philo_function(void* arg)
 
 int	main(int argc, char **argv)
 {
-	int			philo_count;
 	int			i;
 	t_table		*table;
 	pthread_t	death_thread;
 
 	if (!validate_arguments(argc, argv))
 		return (1);
-	philo_count = get_philo_count(argv);
-	if (philo_count < 1 || philo_count > 200)
-		return (0);
-	table = fill_table_stats(philo_count, argv);
+	table = fill_table_stats(argv);
 	i = 0;
-	while (i < philo_count)
+	while (i < table->philo_count)
 	{
 		pthread_create(&(table->philo[i]->thread), NULL, philo_function, table->philo[i]);
 		i++;
@@ -60,7 +56,7 @@ int	main(int argc, char **argv)
 	pthread_create(&death_thread, NULL, death_checker, table);
 	pthread_join(death_thread, NULL);
 	i = 0;
-	while (i < philo_count)
+	while (i < table->philo_count)
 	{
 		pthread_join(table->philo[i]->thread, NULL);
 		i++;

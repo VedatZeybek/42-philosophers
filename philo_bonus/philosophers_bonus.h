@@ -25,7 +25,6 @@ typedef struct s_table
 	struct timeval	start_time;
 	t_philo			**philo;
 	sem_t			*forks;
-	sem_t			*dining_room;
 	int				simulation_end;
 	int				philo_count;
 	int				time_to_eat;
@@ -41,10 +40,6 @@ int		get_philo_count(char **argv);
 long	time_diff_ms(struct timeval start, struct timeval end);
 long	get_timestamp(t_table *table);
 void	philo_process(t_philo *philo);
-
-t_table	*fill_table_stats(int count, char **argv);
-
-
-
+t_table	*fill_table_stats(char **argv);
 
 #endif
