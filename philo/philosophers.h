@@ -1,13 +1,11 @@
 #ifndef PHILOSOPHERS_H
 # define  PHILOSOPHERS_H
 
-
 #include "stdlib.h"
 #include "pthread.h"
 #include "stdio.h"
 #include <unistd.h> 
 #include <sys/time.h>
-
 
 struct s_table;
 typedef struct s_table t_table;
@@ -20,6 +18,8 @@ typedef struct s_philo
 	t_table			*table;
 	int				philo_id;
 	int				*data;
+	pthread_mutex_t eat_count_mutex;
+	int				eat_count;
 }	t_philo;
 
 typedef struct s_table
@@ -36,7 +36,6 @@ typedef struct s_table
 	int				cycle_count;
 }	t_table;
 
-
 int		ft_atoi(const char *str);
 int		validate_arguments(int argc, char **argv);
 int		get_philo_count(char **argv);
@@ -47,8 +46,5 @@ void	cleanup_table(t_table *table);
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
 void	*death_checker(void *arg);
 t_table	*fill_table_stats(int count, char **argv);
-
-
-
 
 #endif

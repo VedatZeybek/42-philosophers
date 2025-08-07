@@ -36,7 +36,6 @@ static int	safe_sleep(t_philo *philo, long sleep_duration, long last_meal_time)
 	{
 		if (is_dead(philo, last_meal_time))
 			return (1);
-		
 		elapsed = get_timestamp(philo->table) - sleep_start;
 		if (elapsed >= sleep_duration)
 			break;

@@ -1,18 +1,39 @@
 #include "philosophers.h"
 
-void	*philo_function(void* arg) 
+static void	arrange_forks(int *first, int *second, int left, int right)
+{
+	if (left < right)
+	{
+		*first = left;
+		*second = right;
+	}
+	else
+	{
+		*first = right;
+		*second = left;
+	}
+}
+
+static void	*philo_function(void* arg) 
 {
 	t_philo	*philo;
 	int		left;
 	int		right;
 	int		first_fork;
 	int		second_fork;
-	
+	int		temp;
+ 
 	philo = (t_philo *)arg;
 	left = philo->philo_id - 1;
 	right = (philo->philo_id) % philo->table->philo_count;
-	first_fork = left < right ? left : right;
-	second_fork = left < right ? right : left;
+	arrange_forks(&first_fork, &second_fork, left, right);
+	if (philo->philo_id == philo->table->philo_count
+		&& philo->table->philo_count % 2 == 1)
+	{
+		temp = first_fork;
+		first_fork = second_fork;
+		second_fork = temp;
+	}
 	philo_life_cycle(philo, first_fork, second_fork);
 	return (NULL);
 }

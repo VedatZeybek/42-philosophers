@@ -42,6 +42,9 @@ static void	eat(t_philo *philo, int first_fork, int second_fork)
 	usleep(philo->table->time_to_eat * 1000);
 	pthread_mutex_unlock(&philo->table->forks[first_fork]);
 	pthread_mutex_unlock(&philo->table->forks[second_fork]);
+	pthread_mutex_lock(&philo->eat_count_mutex);
+	philo->eat_count++;
+	pthread_mutex_unlock(&philo->eat_count_mutex);
 }
 
 static void	sleep_think(t_philo *philo)
@@ -53,24 +56,28 @@ static void	sleep_think(t_philo *philo)
 
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 {
-	int i = 0;
+	int	eat_count;
 
+	eat_count =	0;
 	if (one_philo(philo, first_fork))
 		return ;
 	usleep(100 * philo->philo_id);
-	while ((philo->table->cycle_count == -1 || i < philo->table->cycle_count) 
-		   && !philo->table->simulation_end)
+	while (!philo->table->simulation_end)
 	{
 		if (take_fork(philo, first_fork, second_fork))
 			break ;
 		eat(philo, first_fork, second_fork);
+		pthread_mutex_lock(&philo->eat_count_mutex);
+		eat_count = philo->eat_count;
+		pthread_mutex_unlock(&philo->eat_count_mutex);
+		if (philo->table->cycle_count != -1
+				&& eat_count >= philo->table->cycle_count)
+			break ;
 		if (philo->table->simulation_end)
 			break ;
 		sleep_think(philo);
-		usleep(10);
+		usleep(50);
 		if (philo->table->simulation_end)
 			break ;
-		if (philo->table->cycle_count != -1)
-			i++;
 	}
 }
