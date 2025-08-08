@@ -30,13 +30,12 @@ int	main(int argc, char **argv)
 		i++;
 	}
 	sem_wait(table->death);
-
 	i = 0;
 	while (i < table->philo_count)
 	{
 		kill(pids[i], SIGTERM);
 		i++;
-	}	
+	}
 	i = 0;
 	while (i < table->philo_count)
 	{

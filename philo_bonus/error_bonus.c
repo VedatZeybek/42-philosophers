@@ -23,7 +23,7 @@ int	validate_arguments(int argc, char **argv)
 
 	if (argc < 5 || argc > 6)
 	{
-		printf("Usage: ./philosophers number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
+		printf("Invalid Argument Usage.\n");
 		return (0);
 	}
 	i = 1;
@@ -31,13 +31,13 @@ int	validate_arguments(int argc, char **argv)
 	{
 		if (!is_valid_number(argv[i]))
 		{
-			printf("Error: '%s' is not a valid positive number\n", argv[i]);
+			printf("'%s' is not a valid positive number\n", argv[i]);
 			return (0);
 		}
 		value = ft_atoi(argv[i]);
 		if (value <= 0)
 		{
-			printf("Error: All arguments must be positive numbers\n");
+			printf("All arguments must be positive numbers\n");
 			return (0);
 		}
 		i++;
@@ -45,7 +45,7 @@ int	validate_arguments(int argc, char **argv)
 	value = ft_atoi(argv[1]);
 	if (value < 1 || value > 200)
 	{
-		printf("Error: Number of philosophers must be between 1 and 200\n");
+		printf("Number of philosophers must be between 1 and 200\n");
 		return (0);
 	}
 	return (1);

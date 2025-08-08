@@ -23,12 +23,13 @@ t_table	*fill_table_stats(char **argv)
 	count = ft_atoi(argv[1]);
 	table = malloc(sizeof(t_table));
 	sem_unlink("/forks");
-	table->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, count);
+	table->forks = sem_open("/forks", O_CREAT , 0644, count);
 	if (table->forks == SEM_FAILED) 
 	{
-		perror("sem_open failed");
+		printf("sem_open failed");
 		exit(1);
 	}
+	sem_unlink("/death");
 	table->death = sem_open("/death", O_CREAT, 0644, 0);
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->philo_count = count;

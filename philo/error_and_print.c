@@ -1,13 +1,5 @@
 #include "philosophers.h"
 
-int	get_philo_count(char **argv)
-{
-	int	count;
-
-	count = ft_atoi(argv[1]);
-	return (count);
-}
-
 void	safe_print(char *str, t_philo *philo)
 {
 	pthread_mutex_lock(&philo->table->print_mutex);
@@ -65,13 +57,13 @@ int	validate_arguments(int argc, char **argv)
 	{
 		if (!is_valid_number(argv[i]))
 		{
-			printf("Error: '%s' is not a valid.\n", argv[i]);
+			printf("'%s' is not a valid.\n", argv[i]);
 			return (0);
 		}
 		value = ft_atoi(argv[i]);
 		if (value <= 0)
 		{
-			printf("Error: All arguments must be positive numbers.\n");
+			printf("Arguments must be positive numbers.\n");
 			return (0);
 		}
 		i++;
@@ -79,7 +71,7 @@ int	validate_arguments(int argc, char **argv)
 	value = ft_atoi(argv[1]);
 	if (value < 1 || value > 200)
 	{
-		printf("Error: Number of philosophers must be between 1 and 200\n");
+		printf("Number of philosophers must be between 1 and 200\n");
 		return (0);
 	}
 	return (1);

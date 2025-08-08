@@ -33,7 +33,6 @@ typedef struct s_table
 	int				cycle_count;
 }	t_table;
 
-
 int		ft_atoi(const char *str);
 int		validate_arguments(int argc, char **argv);
 int		get_philo_count(char **argv);
