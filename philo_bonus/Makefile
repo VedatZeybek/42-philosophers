@@ -1,8 +1,7 @@
 BONUS_NAME	=	philo_bonus
 
 BONUS_FILES	=	error_bonus.c fill_stats_bonus.c ft_atoi_bonus.c \
-				philo_bonus.c philo_process_bonus.c time_bonus.c \
-				monitor_bonus.c
+				philo_bonus.c philo_process_bonus.c time_bonus.c
 
 BONUS_SRCS	=	$(BONUS_FILES)
 BONUS_OBJS	=	$(BONUS_SRCS:.c=.o)

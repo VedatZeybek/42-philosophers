@@ -53,11 +53,11 @@ static void	*monitor_death(void *arg)
 		{
 			sem_wait(philo->table->message);
 			printf("%ld %d died.\n", get_timestamp(philo->table), philo->philo_id);
-			sem_post(philo->table->death); // parent'a sinyal
+			sem_post(philo->table->death);
 			sem_post(philo->table->message);
-			exit(1); // kendi process'ini bitir
+			exit(1);
 		}
-		usleep(1000); // 1 ms bekleme
+		usleep(10);
 	}
 	return (NULL);
 }
@@ -76,6 +76,7 @@ void	philo_process(t_philo *philo)
 		return ;
 	if (philo->philo_id % 2 == 0)
 		usleep(1000);
+	usleep(100 * philo->philo_id);
 	while (1)
 	{
 		if (philo_eat(philo))
@@ -85,7 +86,7 @@ void	philo_process(t_philo *philo)
 		if (philo->table->death_flag)
 			return ;
 		print_message(philo, "is thinking.");
-		usleep(500);
+		usleep(1000);
 		if (philo->table->death_flag)
 			return ;
 		i++;

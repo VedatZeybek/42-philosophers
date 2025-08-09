@@ -44,6 +44,5 @@ long		time_diff_ms(struct timeval start, struct timeval end);
 long		get_timestamp(t_table *table);
 void		philo_process(t_philo *philo);
 t_table		*fill_table_stats(char **argv);
-pthread_t	start_monitor(t_table *table);
 
 #endif
