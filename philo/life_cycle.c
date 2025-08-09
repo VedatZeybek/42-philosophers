@@ -61,7 +61,8 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 	eat_count =	0;
 	if (one_philo(philo, first_fork))
 		return ;
-	usleep(100 * philo->philo_id);
+	if (philo->philo_id % 2 == 0)
+		usleep(1000 * philo->philo_id);
 	while (!philo->table->simulation_end)
 	{
 		if (take_fork(philo, first_fork, second_fork))
@@ -76,7 +77,7 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 		if (philo->table->simulation_end)
 			break ;
 		sleep_think(philo);
-		usleep(50);
+		usleep(100);
 		if (philo->table->simulation_end)
 			break ;
 	}
