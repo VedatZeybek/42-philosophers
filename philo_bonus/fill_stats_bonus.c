@@ -31,11 +31,14 @@ t_table	*fill_table_stats(char **argv)
 	}
 	sem_unlink("/death");
 	table->death = sem_open("/death", O_CREAT, 0644, 0);
+	sem_unlink("/message");
+	table->message = sem_open("/message", O_CREAT, 0644, 1);
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->philo_count = count;
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);
 	table->time_to_sleep = ft_atoi(argv[4]);
+	table->death_flag = 0;
 	gettimeofday(&table->start_time, NULL);
 	if (!argv[5])
 		table->cycle_count = -1;

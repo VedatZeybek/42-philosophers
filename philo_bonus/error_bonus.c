@@ -1,5 +1,16 @@
 #include "philosophers_bonus.h"
 
+void	print_message(t_philo *philo, char *message)
+{
+	if (philo->table->death_flag == 0)
+	{
+		sem_wait(philo->table->message);
+		printf("%ld %d %s\n", get_timestamp(philo->table), 
+		       philo->philo_id, message);
+		sem_post(philo->table->message);
+	}
+}
+
 int	is_valid_number(char *str)
 {
 	int	i;

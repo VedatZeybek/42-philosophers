@@ -5,6 +5,7 @@
 #include "stdio.h"
 #include <unistd.h> 
 #include <sys/time.h>
+#include "pthread.h"
 #include "fcntl.h"
 #include <sys/wait.h>
 #include <semaphore.h>
@@ -26,19 +27,23 @@ typedef struct s_table
 	t_philo			**philo;
 	sem_t			*forks;
 	sem_t			*death;
+	sem_t			*death_flag_sem;
+	sem_t			*message;
 	int				philo_count;
 	int				time_to_eat;
 	int				time_to_die;
 	int				time_to_sleep;
 	int				cycle_count;
+	int				death_flag;
 }	t_table;
 
-int		ft_atoi(const char *str);
-int		validate_arguments(int argc, char **argv);
-int		get_philo_count(char **argv);
-long	time_diff_ms(struct timeval start, struct timeval end);
-long	get_timestamp(t_table *table);
-void	philo_process(t_philo *philo);
-t_table	*fill_table_stats(char **argv);
+int			ft_atoi(const char *str);
+int			validate_arguments(int argc, char **argv);
+void		print_message(t_philo *philo, char *msg);
+long		time_diff_ms(struct timeval start, struct timeval end);
+long		get_timestamp(t_table *table);
+void		philo_process(t_philo *philo);
+t_table		*fill_table_stats(char **argv);
+pthread_t	start_monitor(t_table *table);
 
 #endif
