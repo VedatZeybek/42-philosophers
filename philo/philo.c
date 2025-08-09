@@ -33,13 +33,6 @@ static void	*philo_function(void* arg)
 		first_fork = second_fork;
 		second_fork = temp;
 	}
-	// if (philo->philo_id == philo->table->philo_count
-	// 	&& philo->table->philo_count % 2 == 1)
-	// {
-	// 	temp = first_fork;
-	// 	first_fork = second_fork;
-	// 	second_fork = temp;
-	// }
 	philo_life_cycle(philo, first_fork, second_fork);
 	return (NULL);
 }
