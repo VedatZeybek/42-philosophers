@@ -16,6 +16,7 @@ typedef struct s_table t_table;
 typedef struct s_philo
 {
 	struct timeval	last_eat_time;
+	sem_t			*last_eat_sem;
 	t_table			*table;
 	int				philo_id;
 	int				*data;
@@ -27,7 +28,6 @@ typedef struct s_table
 	t_philo			**philo;
 	sem_t			*forks;
 	sem_t			*death;
-	sem_t			*death_flag_sem;
 	sem_t			*message;
 	int				philo_count;
 	int				time_to_eat;

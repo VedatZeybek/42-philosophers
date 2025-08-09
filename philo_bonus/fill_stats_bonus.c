@@ -11,6 +11,8 @@ static void	fill_philo_stats(t_table *table)
 		table->philo[i]->philo_id = i + 1;
 		table->philo[i]->table = table;
 		table->philo[i]->last_eat_time = table->start_time;
+		sem_unlink("/last_eat_sem");
+		table->philo[i]->last_eat_sem = sem_open("/last_eat_sem", O_CREAT, 0644, 1);
 		i++;
 	}
 }

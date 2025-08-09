@@ -6,7 +6,7 @@ int	main(int argc, char **argv)
 	t_table		*table;
 	int			i;
 	pid_t		*pids;
-	pthread_t	monitor_thread;
+
 	i = 0;
 	if (!validate_arguments(argc, argv))
 		exit(EXIT_FAILURE);
@@ -14,7 +14,6 @@ int	main(int argc, char **argv)
 	pids = malloc(sizeof(pid_t) * table->philo_count);
 	if (!pids)
 		return (1);
-	monitor_thread = start_monitor(table);
 	while (i < table->philo_count)
 	{
 		pids[i] = fork();
@@ -32,7 +31,6 @@ int	main(int argc, char **argv)
 	}
 	sem_wait(table->death);
 	table->death_flag = 1;
-	pthread_join(monitor_thread, NULL);
 	i = 0;
 	while (i < table->philo_count)
 	{

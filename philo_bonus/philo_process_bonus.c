@@ -14,47 +14,71 @@ static int	one_philo(t_philo *philo)
 	return (0);
 }
 
-static int	philo_eat(t_philo *philo, long *last_meal_time)
+static int	philo_eat(t_philo *philo)
 {
 	if (philo->table->death_flag)
 		return (1);
 	sem_wait(philo->table->forks);
 	print_message(philo, "has taken a fork.");
-	if (philo->table->death_flag)
-	{
-		sem_post(philo->table->forks);
-		return (1);
-	}
+
 	sem_wait(philo->table->forks);
 	print_message(philo, "has taken a fork.");
-	*last_meal_time = get_timestamp(philo->table);
+	
+	sem_wait(philo->last_eat_sem);
+	gettimeofday(&philo->last_eat_time, NULL);
+	sem_post(philo->last_eat_sem);
+
 	print_message(philo, "is eating.");
 	usleep(1000 * philo->table->time_to_eat);
-	if (philo->table->death_flag)
-	{
-		sem_post(philo->table->forks);
-		sem_post(philo->table->forks);
-		return (1);
-	}
 	sem_post(philo->table->forks);
 	sem_post(philo->table->forks);
 	return (0);
 }
 
+static void	*monitor_death(void *arg)
+{
+	t_philo			*philo;
+	struct timeval	now;
+	long			time_since_last_meal;
+
+	philo = (t_philo *)arg;
+	while (1)
+	{
+		sem_wait(philo->last_eat_sem);
+		gettimeofday(&now, NULL);
+		time_since_last_meal = time_diff_ms(philo->last_eat_time, now);
+		sem_post(philo->last_eat_sem);
+
+		if (time_since_last_meal > philo->table->time_to_die)
+		{
+			sem_wait(philo->table->message);
+			printf("%ld %d died.\n", get_timestamp(philo->table), philo->philo_id);
+			sem_post(philo->table->death); // parent'a sinyal
+			sem_post(philo->table->message);
+			exit(1); // kendi process'ini bitir
+		}
+		usleep(1000); // 1 ms bekleme
+	}
+	return (NULL);
+}
+
+
 void	philo_process(t_philo *philo)
 {
+	pthread_t	monitor;
+
+	pthread_create(&monitor, NULL, monitor_death, philo);
+	pthread_detach(monitor);
 	int		i;
-	long	last_meal_time;
 
 	i = 0;
 	if (one_philo(philo))
 		return ;
-	last_meal_time = get_timestamp(philo->table);
 	if (philo->philo_id % 2 == 0)
 		usleep(1000);
 	while (1)
 	{
-		if (philo_eat(philo, &last_meal_time))
+		if (philo_eat(philo))
 			return ;
 		print_message(philo, "is sleeping.");
 		usleep(1000 * philo->table->time_to_sleep);
