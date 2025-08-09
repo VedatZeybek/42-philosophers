@@ -19,7 +19,7 @@ typedef struct s_philo
 	sem_t			*last_eat_sem;
 	t_table			*table;
 	int				philo_id;
-	int				*data;
+	int				eat_count;
 }	t_philo;
 
 typedef struct s_table
@@ -29,6 +29,7 @@ typedef struct s_table
 	sem_t			*forks;
 	sem_t			*death;
 	sem_t			*message;
+	sem_t			*death_flag_sem;
 	int				philo_count;
 	int				time_to_eat;
 	int				time_to_die;
@@ -46,3 +47,4 @@ void		philo_process(t_philo *philo);
 t_table		*fill_table_stats(char **argv);
 
 #endif
+

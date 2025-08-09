@@ -13,6 +13,7 @@ static void	fill_philo_stats(t_table *table)
 		table->philo[i]->last_eat_time = table->start_time;
 		sem_unlink("/last_eat_sem");
 		table->philo[i]->last_eat_sem = sem_open("/last_eat_sem", O_CREAT, 0644, 1);
+		table->philo[i]->eat_count = 0;
 		i++;
 	}
 }
@@ -41,6 +42,8 @@ t_table	*fill_table_stats(char **argv)
 	table->time_to_eat = ft_atoi(argv[3]);
 	table->time_to_sleep = ft_atoi(argv[4]);
 	table->death_flag = 0;
+	sem_unlink("/death_flag_sem");
+	table->death_flag_sem = sem_open("/death_flag_sem", O_CREAT, 0644, 1);
 	gettimeofday(&table->start_time, NULL);
 	if (!argv[5])
 		table->cycle_count = -1;

@@ -37,12 +37,6 @@ int	main(int argc, char **argv)
 		kill(pids[i], SIGKILL);
 		i++;
 	}
-	i = 0;
-	while (i < table->philo_count)
-	{
-		waitpid(pids[i], 0, 0);
-		i++;
-	}
 	sem_close(table->forks);
 	sem_unlink("/forks");
 	sem_close(table->death);

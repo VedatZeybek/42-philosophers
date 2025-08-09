@@ -5,7 +5,7 @@ static int	one_philo(t_philo *philo)
 	if (philo->table->philo_count == 1)
 	{
 		sem_wait(philo->table->forks);
-		printf("%d has taken a fork\n", philo->philo_id);
+		print_message(philo, "has taken a fork.");
 		usleep(philo->table->time_to_die * 1000);
 		usleep(100);
 		if (philo->table->death_flag)
@@ -20,18 +20,23 @@ static int	philo_eat(t_philo *philo)
 		return (1);
 	sem_wait(philo->table->forks);
 	print_message(philo, "has taken a fork.");
-
 	sem_wait(philo->table->forks);
 	print_message(philo, "has taken a fork.");
-	
 	sem_wait(philo->last_eat_sem);
 	gettimeofday(&philo->last_eat_time, NULL);
+	philo->eat_count++;
 	sem_post(philo->last_eat_sem);
-
 	print_message(philo, "is eating.");
 	usleep(1000 * philo->table->time_to_eat);
 	sem_post(philo->table->forks);
 	sem_post(philo->table->forks);
+	if (philo->table->cycle_count != -1 && 
+		philo->eat_count >= philo->table->cycle_count)
+	{
+		usleep(1000 * philo->table->time_to_eat);
+		sem_post(philo->table->death);
+		exit(0);
+	}
 	return (0);
 }
 
@@ -48,30 +53,29 @@ static void	*monitor_death(void *arg)
 		gettimeofday(&now, NULL);
 		time_since_last_meal = time_diff_ms(philo->last_eat_time, now);
 		sem_post(philo->last_eat_sem);
-
 		if (time_since_last_meal > philo->table->time_to_die)
 		{
 			sem_wait(philo->table->message);
 			printf("%ld %d died.\n", get_timestamp(philo->table), philo->philo_id);
-			sem_post(philo->table->death);
 			sem_post(philo->table->message);
+			sem_post(philo->table->death);
 			exit(1);
 		}
-		usleep(10);
+		usleep(25);
 	}
 	return (NULL);
 }
 
-
 void	philo_process(t_philo *philo)
 {
 	pthread_t	monitor;
-
-	pthread_create(&monitor, NULL, monitor_death, philo);
-	pthread_detach(monitor);
 	int		i;
 
+
 	i = 0;
+	gettimeofday(&philo->last_eat_time, NULL);
+	pthread_create(&monitor, NULL, monitor_death, philo);
+	pthread_detach(monitor);
 	if (one_philo(philo))
 		return ;
 	if (philo->philo_id % 2 == 0)
