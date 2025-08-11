@@ -22,7 +22,6 @@ static void	*philo_function(void* arg)
 	first_fork = philo->philo_id - 1;
 	second_fork = (philo->philo_id) % philo->table->philo_count;
 	arrange_forks(&first_fork, &second_fork, philo);
-	//printf("p_id: %d, left fork %d, right fork: %d\n", philo->philo_id , first_fork , second_fork);
 	philo_life_cycle(philo, first_fork, second_fork);
 	return (NULL);
 }

@@ -38,12 +38,16 @@ typedef struct s_table
 	int				death_flag;
 }	t_table;
 
+char		*ft_itoa(int n);
+char		*ft_strjoin(char const *s1, char const *s2);
 int			ft_atoi(const char *str);
+int			get_death_value(t_philo *philo);
 int			validate_arguments(int argc, char **argv);
 void		print_message(t_philo *philo, char *msg);
 long		time_diff_ms(struct timeval start, struct timeval end);
 long		get_timestamp(t_table *table);
 void		philo_process(t_philo *philo);
+void		cleanup_table(t_table *table);
 t_table		*fill_table_stats(char **argv);
 
 #endif

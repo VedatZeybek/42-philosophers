@@ -1,8 +1,18 @@
 #include "philosophers_bonus.h"
 
+int	get_death_value(t_philo *philo)
+{
+	int	result;
+
+	sem_wait(philo->table->death_flag_sem);
+	result = philo->table->death_flag;
+	sem_post(philo->table->death_flag_sem);
+	return (result);
+}
+
 void	print_message(t_philo *philo, char *message)
 {
-	if (philo->table->death_flag == 0)
+	if (get_death_value(philo) == 0)
 	{
 		sem_wait(philo->table->message);
 		printf("%ld %d %s\n", get_timestamp(philo->table), 
@@ -25,6 +35,20 @@ int	is_valid_number(char *str)
 		i++;
 	}
 	return (1);
+}
+
+void	cleanup_table(t_table *table)
+{
+	int	i;
+
+	i = 0;
+	while (i < table->philo_count)
+	{
+		free(table->philo[i]);
+		i++;
+	}
+	free(table->philo);
+	free(table);
 }
 
 int	validate_arguments(int argc, char **argv)

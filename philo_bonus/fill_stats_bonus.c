@@ -2,7 +2,9 @@
 
 static void	fill_philo_stats(t_table *table)
 {
-	int	i;
+	int		i;
+	char	*name;
+	char	*temp;
 
 	i = 0;
 	while (i < table->philo_count)
@@ -11,8 +13,17 @@ static void	fill_philo_stats(t_table *table)
 		table->philo[i]->philo_id = i + 1;
 		table->philo[i]->table = table;
 		table->philo[i]->last_eat_time = table->start_time;
-		sem_unlink("/last_eat_sem");
-		table->philo[i]->last_eat_sem = sem_open("/last_eat_sem", O_CREAT, 0644, 1);
+		temp = ft_itoa(table->philo[i]->philo_id);
+		name = ft_strjoin("/", temp);
+		free(temp);
+		sem_unlink(name);
+		table->philo[i]->last_eat_sem = sem_open(name, O_CREAT, 0644, 1);
+		if (table->philo[i]->last_eat_sem == SEM_FAILED) 
+		{
+			printf("sem_open failed");
+			exit(1);
+		}	
+		free(name);
 		table->philo[i]->eat_count = 0;
 		i++;
 	}
@@ -34,8 +45,18 @@ t_table	*fill_table_stats(char **argv)
 	}
 	sem_unlink("/death");
 	table->death = sem_open("/death", O_CREAT, 0644, 0);
+	if (table->death == SEM_FAILED) 
+	{
+		printf("sem_open failed");
+		exit(1);
+	}
 	sem_unlink("/message");
 	table->message = sem_open("/message", O_CREAT, 0644, 1);
+	if (table->message == SEM_FAILED) 
+	{
+		printf("sem_open failed");
+		exit(1);
+	}
 	table->philo = malloc (sizeof(t_philo *) * count);
 	table->philo_count = count;
 	table->time_to_die = ft_atoi(argv[2]);
@@ -44,6 +65,11 @@ t_table	*fill_table_stats(char **argv)
 	table->death_flag = 0;
 	sem_unlink("/death_flag_sem");
 	table->death_flag_sem = sem_open("/death_flag_sem", O_CREAT, 0644, 1);
+	if (table->death_flag_sem == SEM_FAILED) 
+	{
+		printf("sem_open failed");
+		exit(1);
+	}
 	gettimeofday(&table->start_time, NULL);
 	if (!argv[5])
 		table->cycle_count = -1;
