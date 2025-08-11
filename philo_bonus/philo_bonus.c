@@ -41,11 +41,11 @@ int	main(int argc, char **argv)
 		if (pids[i] == 0)
 		{
 			philo_process(table->philo[i]);
-			usleep(10000);
 			int	j = 0;
 			while (j < table->philo_count)
 			{
 				sem_close(table->philo[j]->last_eat_sem);
+				sem_close(table->philo[j]->eat_count_sem);
 				j++;
 			}			
 			free(pids);
@@ -59,11 +59,10 @@ int	main(int argc, char **argv)
 		}
 		i++;
 	}
-	int finished_count = 0;
 	int status;
 	pid_t pid;
 	int someone_died = 0;
-	while (finished_count < table->philo_count && !someone_died)
+	while (!someone_died)
 	{
 		pid = waitpid(-1, &status, 0);
 		if (pid > 0) 
@@ -77,14 +76,8 @@ int	main(int argc, char **argv)
 					kill_all_remaining_philosophers(pids, table->philo_count);
 					break ;
 				}
-				else
-					finished_count++;
 			}
 		}
-	}
-	if (finished_count == table->philo_count)
-	{
-		kill_all_remaining_philosophers(pids, table->philo_count);
 	}
 	table->death_flag = 1;
 	i = 0;
@@ -99,8 +92,12 @@ int	main(int argc, char **argv)
 		char *name = ft_strjoin("/", temp);
 		free(temp);
 		sem_unlink(name);
+		char *eat_name = ft_strjoin(name, "eat");
+		sem_unlink(eat_name);
 		free(name);
+		free(eat_name);
 		sem_close(table->philo[i]->last_eat_sem);
+		sem_close(table->philo[i]->eat_count_sem);
 		i++;
 	}
 	cleanup_table(table);

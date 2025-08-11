@@ -17,8 +17,6 @@ static int	one_philo(t_philo *philo)
 
 static int	philo_eat(t_philo *philo)
 {
-	if (get_death_value(philo))
-		return (1);
 	sem_wait(philo->table->forks);
 	print_message(philo, "has taken a fork");
 	sem_wait(philo->table->forks);
@@ -26,17 +24,23 @@ static int	philo_eat(t_philo *philo)
 	sem_wait(philo->last_eat_sem);
 	gettimeofday(&philo->last_eat_time, NULL);
 	sem_post(philo->last_eat_sem);
+	sem_wait(philo->eat_count_sem);
 	philo->eat_count++;
+	sem_post(philo->eat_count_sem);
 	print_message(philo, "is eating");
 	usleep(1000 * philo->table->time_to_eat);
 	sem_post(philo->table->forks);
 	sem_post(philo->table->forks);
+	sem_wait(philo->eat_count_sem);
 	if (philo->table->cycle_count != -1 && 
 		philo->eat_count >= philo->table->cycle_count)
 	{
 		usleep(1000 * philo->table->time_to_eat);
+		sem_wait(philo->table->message);
+		sem_post(philo->eat_count_sem);
 		return (1);
 	}
+	sem_post(philo->eat_count_sem);
 	return (0);
 }
 
@@ -59,12 +63,20 @@ static void	*monitor_death(void *arg)
 			printf("%ld %d died\n", get_timestamp(philo->table), philo->philo_id);
 			sem_post(philo->table->message);
 			sem_wait(philo->table->message);
-			if (get_death_value(philo) == 0)
+			if (get_death_value(philo) == 0 )
 			{
 				philo->table->death_flag = 1;
 				break ;
 			}
 		}
+		sem_wait(philo->eat_count_sem);
+		if (philo->table->cycle_count != -1 && 
+			philo->eat_count >= philo->table->cycle_count)
+		{
+			sem_post(philo->eat_count_sem);
+			break ;
+		}
+		sem_post(philo->eat_count_sem);
 		usleep(1000);
 	}
 	return (NULL);
@@ -82,6 +94,8 @@ void	philo_process(t_philo *philo)
 		pthread_join(monitor, NULL);
 		return ;
 	}
+	if (philo->philo_id % 2 == 0)
+		usleep(500);
 	while (1)
 	{
 		if (philo_eat(philo))

@@ -5,6 +5,7 @@ static void	fill_philo_stats(t_table *table)
 	int		i;
 	char	*name;
 	char	*temp;
+	char 	*eat_count_name;
 
 	i = 0;
 	while (i < table->philo_count)
@@ -18,12 +19,10 @@ static void	fill_philo_stats(t_table *table)
 		free(temp);
 		sem_unlink(name);
 		table->philo[i]->last_eat_sem = sem_open(name, O_CREAT, 0644, 1);
-		if (table->philo[i]->last_eat_sem == SEM_FAILED) 
-		{
-			printf("sem_open failed");
-			exit(1);
-		}	
+		eat_count_name = ft_strjoin(name, "eat");
+		table->philo[i]->eat_count_sem = sem_open(eat_count_name, O_CREAT, 0644, 1);	
 		free(name);
+		free(eat_count_name);
 		table->philo[i]->eat_count = 0;
 		i++;
 	}
