@@ -35,7 +35,7 @@ static int	philo_eat(t_philo *philo)
 		philo->eat_count >= philo->table->cycle_count)
 	{
 		usleep(1000 * philo->table->time_to_eat);
-		exit(0);
+		return (1);
 	}
 	return (0);
 }
@@ -59,7 +59,11 @@ static void	*monitor_death(void *arg)
 			printf("%ld %d died\n", get_timestamp(philo->table), philo->philo_id);
 			sem_post(philo->table->message);
 			sem_wait(philo->table->message);
-			exit(1);
+			if (get_death_value(philo) == 0)
+			{
+				philo->table->death_flag = 1;
+				break ;
+			}
 		}
 		usleep(1000);
 	}
@@ -69,26 +73,33 @@ static void	*monitor_death(void *arg)
 void	philo_process(t_philo *philo)
 {
 	pthread_t	monitor;
-	int		i;
+	int			i;
 
-
-	i = 0;
 	gettimeofday(&philo->last_eat_time, NULL);
 	pthread_create(&monitor, NULL, monitor_death, philo);
-	pthread_detach(monitor);
 	if (one_philo(philo))
+	{
+		pthread_join(monitor, NULL);
 		return ;
+	}
 	while (1)
 	{
 		if (philo_eat(philo))
-			return ;
+			break ;
+		if (get_death_value(philo))
+			break ;
 		print_message(philo, "is sleeping");
+		if (get_death_value(philo))
+			break ;
 		usleep(1000 * philo->table->time_to_sleep);
-		if (philo->table->death_flag)
-			return ;
+		if (get_death_value(philo))
+			break ;
 		print_message(philo, "is thinking");
-		usleep(500 +(philo->table->time_to_eat * 1000
-				- philo->table->time_to_sleep * 1000));
+		usleep(500 + (philo->table->time_to_eat * 1000 - philo->table->time_to_sleep * 1000));
+		if (get_death_value(philo))
+			break ;
 		i++;
 	}
+	pthread_join(monitor, NULL);
+	return ;
 }

@@ -1,7 +1,8 @@
 #include "philosophers_bonus.h"
 #include "signal.h"
 
-void	kill_all_remaining_philosophers(pid_t *pids, int count) {
+void	kill_all_remaining_philosophers(pid_t *pids, int count)
+{
 	int	i;
 
 	i = 0;
@@ -24,8 +25,8 @@ void	kill_all_remaining_philosophers(pid_t *pids, int count) {
 int	main(int argc, char **argv)
 {
 	t_table		*table;
-	int			i;
 	pid_t		*pids;
+	int			i;
 
 	i = 0;
 	if (!validate_arguments(argc, argv))
@@ -40,7 +41,16 @@ int	main(int argc, char **argv)
 		if (pids[i] == 0)
 		{
 			philo_process(table->philo[i]);
-			exit(0);
+			usleep(10000);
+			int	j = 0;
+			while (j < table->philo_count)
+			{
+				sem_close(table->philo[j]->last_eat_sem);
+				j++;
+			}			
+			free(pids);
+			cleanup_table(table);
+			exit(1);
 		}
 		else if (pids[i] < 0)
 		{
@@ -72,21 +82,16 @@ int	main(int argc, char **argv)
 			}
 		}
 	}
+	if (finished_count == table->philo_count)
+	{
+		kill_all_remaining_philosophers(pids, table->philo_count);
+	}
 	table->death_flag = 1;
 	i = 0;
-	while (i < table->philo_count)
-	{
-		kill(pids[i], SIGKILL);
-		i++;
-	}
 	sem_unlink("/forks");
-	sem_close(table->forks);
 	sem_unlink("/death");
-	sem_close(table->death);
 	sem_unlink("/message");
-	sem_close(table->message);
 	sem_unlink("/death_flag_sem");
-	sem_close(table->death_flag_sem);
 	i = 0;
 	while (i < table->philo_count)
 	{

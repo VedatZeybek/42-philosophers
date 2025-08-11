@@ -42,11 +42,25 @@ void	cleanup_table(t_table *table)
 	int	i;
 
 	i = 0;
+	sem_close(table->death);
+	sem_close(table->message);
+	sem_close(table->death_flag_sem);
+	sem_close(table->forks);
 	while (i < table->philo_count)
 	{
 		free(table->philo[i]);
 		i++;
 	}
+	free(table->philo);
+	free(table);
+}
+
+void cleanup_child(t_table *table)
+{
+	sem_close(table->death);
+	sem_close(table->message);
+	sem_close(table->death_flag_sem);
+	sem_close(table->forks);
 	free(table->philo);
 	free(table);
 }

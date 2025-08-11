@@ -9,6 +9,7 @@
 #include "fcntl.h"
 #include <sys/wait.h>
 #include <semaphore.h>
+#include <string.h>
 
 struct s_table;
 typedef struct s_table t_table;
@@ -48,6 +49,7 @@ long		time_diff_ms(struct timeval start, struct timeval end);
 long		get_timestamp(t_table *table);
 void		philo_process(t_philo *philo);
 void		cleanup_table(t_table *table);
+void 		cleanup_child(t_table *table);
 t_table		*fill_table_stats(char **argv);
 
 #endif
