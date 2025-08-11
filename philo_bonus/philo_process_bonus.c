@@ -7,7 +7,7 @@ static int	one_philo(t_philo *philo)
 		sem_wait(philo->table->forks);
 		print_message(philo, "has taken a fork");
 		usleep(philo->table->time_to_die * 1000);
-		usleep(100);
+		usleep(10000);
 		sem_post(philo->table->forks);
 		if (get_death_value(philo))
 			return (1);
