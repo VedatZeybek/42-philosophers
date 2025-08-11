@@ -38,7 +38,7 @@ static void	eat(t_philo *philo, int first_fork, int second_fork)
 	pthread_mutex_lock(&philo->last_eat_mutex);
 	gettimeofday(&philo->last_eat_time, NULL);
 	pthread_mutex_unlock(&philo->last_eat_mutex);
-	safe_print("is eating.", philo);
+	safe_print("is eating", philo);
 	usleep(philo->table->time_to_eat * 1000);
 	pthread_mutex_unlock(&philo->table->forks[first_fork]);
 	pthread_mutex_unlock(&philo->table->forks[second_fork]);
@@ -61,8 +61,7 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 	eat_count =	0;
 	if (one_philo(philo, first_fork))
 		return ;
-	if (philo->philo_id % 2 == 0)
-		usleep(1000 * philo->philo_id);
+
 	while (!philo->table->simulation_end)
 	{
 		if (take_fork(philo, first_fork, second_fork))
@@ -77,7 +76,8 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 		if (philo->table->simulation_end)
 			break ;
 		sleep_think(philo);
-		usleep(100);
+		usleep(500 +(philo->table->time_to_eat * 1000
+				- philo->table->time_to_sleep * 1000));
 		if (philo->table->simulation_end)
 			break ;
 	}
