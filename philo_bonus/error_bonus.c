@@ -55,16 +55,6 @@ void	cleanup_table(t_table *table)
 	free(table);
 }
 
-void cleanup_child(t_table *table)
-{
-	sem_close(table->death);
-	sem_close(table->message);
-	sem_close(table->death_flag_sem);
-	sem_close(table->forks);
-	free(table->philo);
-	free(table);
-}
-
 int	validate_arguments(int argc, char **argv)
 {
 	int	i;
