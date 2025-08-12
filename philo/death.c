@@ -6,11 +6,21 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:53:41 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 09:53:42 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/12 12:51:43 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+int	get_death_value(t_table *table)
+{
+	int res;
+
+	pthread_mutex_lock(&table->simulation_end_mutex);
+	res = table->simulation_end;
+	pthread_mutex_unlock(&table->simulation_end_mutex);
+	return (res);
+}
 
 static int	all_philos_finished_eat(t_table *table)
 {
@@ -44,7 +54,7 @@ static int	is_dead(t_table *table, int i)
 	if (time_diff > table->time_to_die)
 	{
 		pthread_mutex_lock(&table->print_mutex);
-		if (!table->simulation_end)
+		if (!get_death_value(table))
 		{
 			printf("%ld %d died\n", get_timestamp(table),
 				table->philo[i]->philo_id);
@@ -78,6 +88,7 @@ static void	death_cehcker_loop(t_table *table)
 	}
 }
 
+
 void	*death_checker(void *arg)
 {
 	t_table	*table;
@@ -87,7 +98,7 @@ void	*death_checker(void *arg)
 	while (!table->simulation_end)
 	{
 		death_cehcker_loop(table);
-		if (all_philos_finished_eat(table) && !table->simulation_end)
+		if (all_philos_finished_eat(table) && !get_death_value(table))
 		{
 			table->simulation_end = 1;
 			return (NULL);

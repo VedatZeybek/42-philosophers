@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:59:59 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 10:00:27 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/12 12:47:25 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,10 @@ typedef struct s_table
 {
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	simulation_end_mutex;
+	int				simulation_end;
 	t_philo			**philo;
 	struct timeval	start_time;
-	int				simulation_end;
 	int				philo_count;
 	int				time_to_eat;
 	int				time_to_die;
@@ -58,5 +59,6 @@ void	cleanup_table(t_table *table);
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
 void	*death_checker(void *arg);
 t_table	*fill_table_stats(char **argv);
+int	get_death_value(t_table *table);
 
 #endif

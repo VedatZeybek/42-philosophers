@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:54:01 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 10:28:57 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/12 12:47:07 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 	eat_count = 0;
 	if (one_philo(philo, first_fork))
 		return ;
-	while (!philo->table->simulation_end)
+	while (!get_death_value(philo->table))
 	{
 		if (take_fork(philo, first_fork, second_fork))
 			break ;
@@ -91,10 +91,6 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 		if (philo->table->cycle_count != -1
 			&& eat_count >= philo->table->cycle_count)
 			break ;
-		if (philo->table->simulation_end)
-			break ;
 		sleep_think(philo);
-		if (philo->table->simulation_end)
-			break ;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:53:54 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 09:53:55 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/12 12:47:52 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ t_table	*fill_table_stats(char **argv)
 	table->forks = malloc(sizeof(pthread_mutex_t) * count);
 	table->philo_count = count;
 	table->simulation_end = 0;
+	pthread_mutex_init(&table->simulation_end_mutex, NULL);
 	pthread_mutex_init(&table->print_mutex, NULL);
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);

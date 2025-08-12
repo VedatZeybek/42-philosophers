@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:35:56 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 10:35:57 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/12 17:21:20 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ static int	check_philo_death(t_philo *philo)
 		sem_wait(philo->table->message);
 		if (get_death_value(philo) == 0)
 		{
+			sem_wait(philo->table->death_flag_sem);
 			philo->table->death_flag = 1;
+			sem_post(philo->table->death_flag_sem);
 			return (1);
 		}
 	}
