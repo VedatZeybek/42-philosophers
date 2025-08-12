@@ -1,55 +1,44 @@
-#include "philosophers_bonus.h"
-#include "signal.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_bonus.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 10:35:52 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 10:35:53 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-void	kill_all_remaining_philosophers(pid_t *pids, int count)
+#include "philosophers_bonus.h"
+
+static void	cleanup_child_process(t_table *table, pid_t *pids)
+{
+	int	j;
+
+	j = 0;
+	while (j < table->philo_count)
+	{
+		sem_close(table->philo[j]->last_eat_sem);
+		sem_close(table->philo[j]->eat_count_sem);
+		j++;
+	}
+	free(pids);
+	cleanup_table(table);
+}
+
+static int	create_philosopher_processes(t_table *table, pid_t *pids)
 {
 	int	i;
 
 	i = 0;
-	while (i < count)
-	{
-		kill(pids[i], SIGKILL);
-		i++;
-	}
-	i = 0;
-	while (i < count)
-	{
-		if (pids[i] > 0)
-		{
-			waitpid(pids[i], NULL, WNOHANG);
-		}
-		i++;
-	}
-}
-
-int	main(int argc, char **argv)
-{
-	t_table		*table;
-	pid_t		*pids;
-	int			i;
-
-	i = 0;
-	if (!validate_arguments(argc, argv))
-		exit(EXIT_FAILURE);
-	table = fill_table_stats(argv);
-	pids = malloc(sizeof(pid_t) * table->philo_count);
-	if (!pids)
-		return (1);
 	while (i < table->philo_count)
 	{
 		pids[i] = fork();
 		if (pids[i] == 0)
 		{
 			philo_process(table->philo[i]);
-			int	j = 0;
-			while (j < table->philo_count)
-			{
-				sem_close(table->philo[j]->last_eat_sem);
-				sem_close(table->philo[j]->eat_count_sem);
-				j++;
-			}			
-			free(pids);
-			cleanup_table(table);
+			cleanup_child_process(table, pids);
 			exit(1);
 		}
 		else if (pids[i] < 0)
@@ -59,18 +48,24 @@ int	main(int argc, char **argv)
 		}
 		i++;
 	}
-	int status;
-	pid_t pid;
-	int someone_died = 0;
+	return (0);
+}
+
+static int	wait_for_philosophers(pid_t *pids, t_table *table)
+{
+	int		status;
+	pid_t	pid;
+	int		someone_died;
+
+	someone_died = 0;
 	while (!someone_died)
 	{
 		pid = waitpid(-1, &status, 0);
-		if (pid > 0) 
+		if (pid > 0)
 		{
 			if (WIFEXITED(status))
 			{
-				int exit_code = WEXITSTATUS(status);
-				if (exit_code == 1) 
+				if (WEXITSTATUS(status) == 1)
 				{
 					someone_died = 1;
 					kill_all_remaining_philosophers(pids, table->philo_count);
@@ -79,8 +74,16 @@ int	main(int argc, char **argv)
 			}
 		}
 	}
-	table->death_flag = 1;
-	i = 0;
+	return (someone_died);
+}
+
+static void	cleanup_semaphores(t_table *table)
+{
+	int		i;
+	char	*temp;
+	char	*name;
+	char	*eat_name;
+
 	sem_unlink("/forks");
 	sem_unlink("/death");
 	sem_unlink("/message");
@@ -88,11 +91,11 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i < table->philo_count)
 	{
-		char *temp = ft_itoa(table->philo[i]->philo_id);
-		char *name = ft_strjoin("/", temp);
+		temp = ft_itoa(table->philo[i]->philo_id);
+		name = ft_strjoin("/", temp);
 		free(temp);
 		sem_unlink(name);
-		char *eat_name = ft_strjoin(name, "eat");
+		eat_name = ft_strjoin(name, "eat");
 		sem_unlink(eat_name);
 		free(name);
 		free(eat_name);
@@ -100,6 +103,24 @@ int	main(int argc, char **argv)
 		sem_close(table->philo[i]->eat_count_sem);
 		i++;
 	}
+}
+
+int	main(int argc, char **argv)
+{
+	t_table	*table;
+	pid_t	*pids;
+
+	if (!validate_arguments(argc, argv))
+		exit(EXIT_FAILURE);
+	table = fill_table_stats(argv);
+	pids = malloc(sizeof(pid_t) * table->philo_count);
+	if (!pids)
+		return (1);
+	if (create_philosopher_processes(table, pids))
+		return (1);
+	wait_for_philosophers(pids, table);
+	table->death_flag = 1;
+	cleanup_semaphores(table);
 	cleanup_table(table);
 	free(pids);
 	return (0);

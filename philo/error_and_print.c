@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error_and_print.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 09:53:50 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 09:53:51 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers.h"
 
 void	safe_print(char *str, t_philo *philo)
@@ -42,36 +54,45 @@ int	is_valid_number(char *str)
 	return (1);
 }
 
-int	validate_arguments(int argc, char **argv)
+static int	control_number(int argc, char **argv)
 {
 	int	i;
 	int	value;
 
-	if (argc < 5 || argc > 6)
-	{
-		printf("Invalid Argument Number.\n");
-		return (0);
-	}
 	i = 1;
 	while (i < argc)
 	{
 		if (!is_valid_number(argv[i]))
 		{
-			printf("'%s' is not a valid.\n", argv[i]);
+			printf(ERR_NUM);
 			return (0);
 		}
 		value = ft_atoi(argv[i]);
 		if (value <= 0)
 		{
-			printf("Arguments must be positive numbers.\n");
+			printf(ERR_NEG);
 			return (0);
 		}
 		i++;
 	}
+	return (1);
+}
+
+int	validate_arguments(int argc, char **argv)
+{
+	int	value;
+
+	if (argc < 5 || argc > 6)
+	{
+		printf(ERR_INPUT);
+		return (0);
+	}
+	if (!control_number(argc, argv))
+		return (0);
 	value = ft_atoi(argv[1]);
 	if (value < 1 || value > 200)
 	{
-		printf("Number of philosophers must be between 1 and 200\n");
+		printf(ERR_PHI);
 		return (0);
 	}
 	return (1);

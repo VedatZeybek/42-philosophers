@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 09:57:47 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 09:57:48 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers.h"
 
 static void	arrange_forks(int *first, int *second, t_philo *philo)
@@ -12,12 +24,12 @@ static void	arrange_forks(int *first, int *second, t_philo *philo)
 	}
 }
 
-static void	*philo_function(void* arg) 
+static void	*philo_function(void *arg)
 {
 	t_philo	*philo;
 	int		first_fork;
 	int		second_fork;
- 
+
 	philo = (t_philo *)arg;
 	first_fork = philo->philo_id - 1;
 	second_fork = (philo->philo_id) % philo->table->philo_count;
@@ -38,7 +50,8 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i < table->philo_count)
 	{
-		pthread_create(&(table->philo[i]->thread), NULL, philo_function, table->philo[i]);
+		pthread_create(&(table->philo[i]->thread),
+			NULL, philo_function, table->philo[i]);
 		i++;
 	}
 	pthread_create(&death_thread, NULL, death_checker, table);

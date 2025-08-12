@@ -1,82 +1,65 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_process_bonus.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 10:35:56 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 10:35:57 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers_bonus.h"
 
-static int	one_philo(t_philo *philo)
+static int	check_philo_death(t_philo *philo)
 {
-	if (philo->table->philo_count == 1)
+	struct timeval	now;
+	long			time_since_last_meal;
+
+	sem_wait(philo->last_eat_sem);
+	gettimeofday(&now, NULL);
+	time_since_last_meal = time_diff_ms(philo->last_eat_time, now);
+	sem_post(philo->last_eat_sem);
+	if (time_since_last_meal > philo->table->time_to_die)
 	{
-		sem_wait(philo->table->forks);
-		print_message(philo, "has taken a fork");
-		usleep(philo->table->time_to_die * 1000);
-		usleep(10000);
-		sem_post(philo->table->forks);
-		if (get_death_value(philo))
+		sem_wait(philo->table->message);
+		printf("%ld %d died\n", get_timestamp(philo->table), philo->philo_id);
+		sem_post(philo->table->message);
+		sem_wait(philo->table->message);
+		if (get_death_value(philo) == 0)
+		{
+			philo->table->death_flag = 1;
 			return (1);
+		}
 	}
 	return (0);
 }
 
-static int	philo_eat(t_philo *philo)
+static int	check_eat_count(t_philo *philo)
 {
-	sem_wait(philo->table->forks);
-	print_message(philo, "has taken a fork");
-	sem_wait(philo->table->forks);
-	print_message(philo, "has taken a fork");
-	sem_wait(philo->last_eat_sem);
-	gettimeofday(&philo->last_eat_time, NULL);
-	sem_post(philo->last_eat_sem);
+	int	should_exit;
+
+	should_exit = 0;
 	sem_wait(philo->eat_count_sem);
-	philo->eat_count++;
+	if (philo->table->cycle_count != -1
+		&& philo->eat_count >= philo->table->cycle_count)
+		should_exit = 1;
 	sem_post(philo->eat_count_sem);
-	print_message(philo, "is eating");
-	usleep(1000 * philo->table->time_to_eat);
-	sem_post(philo->table->forks);
-	sem_post(philo->table->forks);
-	sem_wait(philo->eat_count_sem);
-	if (philo->table->cycle_count != -1 && 
-		philo->eat_count >= philo->table->cycle_count)
-	{
-		usleep(1000 * philo->table->time_to_eat);
-		sem_wait(philo->table->message);
-		sem_post(philo->eat_count_sem);
-		return (1);
-	}
-	sem_post(philo->eat_count_sem);
-	return (0);
+	return (should_exit);
 }
 
 static void	*monitor_death(void *arg)
 {
-	t_philo			*philo;
-	struct timeval	now;
-	long			time_since_last_meal;
+	t_philo	*philo;
 
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		sem_wait(philo->last_eat_sem);
-		gettimeofday(&now, NULL);
-		time_since_last_meal = time_diff_ms(philo->last_eat_time, now);
-		sem_post(philo->last_eat_sem);
-		if (time_since_last_meal > philo->table->time_to_die)
-		{
-			sem_wait(philo->table->message);
-			printf("%ld %d died\n", get_timestamp(philo->table), philo->philo_id);
-			sem_post(philo->table->message);
-			sem_wait(philo->table->message);
-			if (get_death_value(philo) == 0 )
-			{
-				philo->table->death_flag = 1;
-				break ;
-			}
-		}
-		sem_wait(philo->eat_count_sem);
-		if (philo->table->cycle_count != -1 && 
-			philo->eat_count >= philo->table->cycle_count)
-		{
-			sem_post(philo->eat_count_sem);
+		if (check_philo_death(philo))
 			break ;
-		}
-		sem_post(philo->eat_count_sem);
+		if (check_eat_count(philo))
+			break ;
 		usleep(1000);
 	}
 	return (NULL);
@@ -85,7 +68,6 @@ static void	*monitor_death(void *arg)
 void	philo_process(t_philo *philo)
 {
 	pthread_t	monitor;
-	int			i;
 
 	gettimeofday(&philo->last_eat_time, NULL);
 	pthread_create(&monitor, NULL, monitor_death, philo);
@@ -96,24 +78,7 @@ void	philo_process(t_philo *philo)
 	}
 	if (philo->philo_id % 2 == 0)
 		usleep(500);
-	while (1)
-	{
-		if (philo_eat(philo))
-			break ;
-		if (get_death_value(philo))
-			break ;
-		print_message(philo, "is sleeping");
-		if (get_death_value(philo))
-			break ;
-		usleep(1000 * philo->table->time_to_sleep);
-		if (get_death_value(philo))
-			break ;
-		print_message(philo, "is thinking");
-		usleep(500 + (philo->table->time_to_eat * 1000 - philo->table->time_to_sleep * 1000));
-		if (get_death_value(philo))
-			break ;
-		i++;
-	}
+	routine(philo);
 	pthread_join(monitor, NULL);
 	return ;
 }

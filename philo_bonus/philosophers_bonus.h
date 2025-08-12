@@ -1,18 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philosophers_bonus.h                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 10:36:15 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 10:36:16 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILOSOPHERS_BONUS_H
 # define  PHILOSOPHERS_BONUS_H
 
-#include "stdlib.h"
-#include "stdio.h"
-#include <unistd.h> 
-#include <sys/time.h>
-#include "pthread.h"
-#include "fcntl.h"
-#include <sys/wait.h>
-#include <semaphore.h>
-#include <string.h>
+# include "stdlib.h"
+# include "stdio.h"
+# include <unistd.h> 
+# include <sys/time.h>
+# include "pthread.h"
+# include "fcntl.h"
+# include <sys/wait.h>
+# include <semaphore.h>
+# include <string.h>
+# include "error_bonus.h"
+# include "signal.h"
 
-struct s_table;
-typedef struct s_table t_table;
+struct					s_table;
+typedef struct s_table	t_table;
 
 typedef struct s_philo
 {
@@ -48,9 +62,12 @@ int			validate_arguments(int argc, char **argv);
 void		print_message(t_philo *philo, char *msg);
 long		time_diff_ms(struct timeval start, struct timeval end);
 long		get_timestamp(t_table *table);
+int			philo_eat(t_philo *philo);
+int			one_philo(t_philo *philo);
+void		routine(t_philo *philo);
 void		philo_process(t_philo *philo);
 void		cleanup_table(t_table *table);
+void		kill_all_remaining_philosophers(pid_t *pids, int count);
 t_table		*fill_table_stats(char **argv);
 
 #endif
-

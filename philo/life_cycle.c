@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   life_cycle.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 09:54:01 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 10:28:57 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers.h"
 
 static int	one_philo(t_philo *philo, int first_fork)
@@ -52,16 +64,22 @@ static void	sleep_think(t_philo *philo)
 	safe_print("is sleeping", philo);
 	usleep(philo->table->time_to_sleep * 1000);
 	safe_print("is thinking", philo);
+	if (philo->table->time_to_eat > philo->table->time_to_sleep)
+	{
+		usleep(500 + (philo->table->time_to_eat * 1000
+				- philo->table->time_to_sleep * 1000));
+	}
+	else
+		usleep(500);
 }
 
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 {
 	int	eat_count;
 
-	eat_count =	0;
+	eat_count = 0;
 	if (one_philo(philo, first_fork))
 		return ;
-
 	while (!philo->table->simulation_end)
 	{
 		if (take_fork(philo, first_fork, second_fork))
@@ -71,13 +89,11 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 		eat_count = philo->eat_count;
 		pthread_mutex_unlock(&philo->eat_count_mutex);
 		if (philo->table->cycle_count != -1
-				&& eat_count >= philo->table->cycle_count)
+			&& eat_count >= philo->table->cycle_count)
 			break ;
 		if (philo->table->simulation_end)
 			break ;
 		sleep_think(philo);
-		usleep(500 +(philo->table->time_to_eat * 1000
-				- philo->table->time_to_sleep * 1000));
 		if (philo->table->simulation_end)
 			break ;
 	}

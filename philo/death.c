@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   death.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 09:53:41 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 09:53:42 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers.h"
 
 static int	all_philos_finished_eat(t_table *table)
@@ -22,8 +34,8 @@ static int	all_philos_finished_eat(t_table *table)
 
 static int	is_dead(t_table *table, int i)
 {
-	struct	timeval	now;
-	long	time_diff;
+	struct timeval	now;
+	long			time_diff;
 
 	gettimeofday(&now, NULL);
 	pthread_mutex_lock(&table->philo[i]->last_eat_mutex);
@@ -34,7 +46,8 @@ static int	is_dead(t_table *table, int i)
 		pthread_mutex_lock(&table->print_mutex);
 		if (!table->simulation_end)
 		{
-			printf("%ld %d died\n", get_timestamp(table), table->philo[i]->philo_id);
+			printf("%ld %d died\n", get_timestamp(table),
+				table->philo[i]->philo_id);
 			table->simulation_end = 1;
 		}
 		pthread_mutex_unlock(&table->print_mutex);
@@ -52,7 +65,7 @@ static void	death_cehcker_loop(t_table *table)
 	{
 		pthread_mutex_lock(&table->philo[i]->eat_count_mutex);
 		if (table->philo[i]->eat_count >= table->cycle_count
-				&& table->cycle_count != -1)
+			&& table->cycle_count != -1)
 		{
 			pthread_mutex_unlock(&table->philo[i]->eat_count_mutex);
 			i++;

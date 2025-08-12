@@ -1,28 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   time.c                                             :+:      :+:    :+:   */
+/*   error_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 09:59:27 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 09:59:56 by vzeybek          ###   ########.fr       */
+/*   Created: 2025/08/12 10:36:29 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 10:36:30 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#ifndef ERROR_BONUS_H
+# define ERROR_BONUS_H
 
-long	time_diff_ms(struct timeval start, struct timeval end)
-{
-	return (((end.tv_sec - start.tv_sec) * 1000)
-		+((end.tv_usec - start.tv_usec) / 1000));
-}
+# define ERR_INPUT "usage:./philo number_of_philosophers time_to_die time_to_eat \
+ time_to_sleep number_of_times_each_philosopher_must_eat\n"
 
-long	get_timestamp(t_table *table)
-{
-	struct timeval	current;
+# define ERR_NEG "Arguments must be positive numbers\n"
 
-	gettimeofday(&current, NULL);
-	return (((current.tv_sec - table->start_time.tv_sec) * 1000)
-		+ ((current.tv_usec - table->start_time.tv_usec) / 1000));
-}
+# define ERR_PHI "Number of philosophers must be between 1 and 200\n"
+
+# define ERR_NUM "Input should be number\n"
+
+#endif

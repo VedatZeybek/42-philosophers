@@ -1,22 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error_bonus.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 10:33:39 by vzeybek           #+#    #+#             */
+/*   Updated: 2025/08/12 10:33:40 by vzeybek          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers_bonus.h"
-
-int	get_death_value(t_philo *philo)
-{
-	int	result;
-
-	sem_wait(philo->table->death_flag_sem);
-	result = philo->table->death_flag;
-	sem_post(philo->table->death_flag_sem);
-	return (result);
-}
 
 void	print_message(t_philo *philo, char *message)
 {
 	if (get_death_value(philo) == 0)
 	{
 		sem_wait(philo->table->message);
-		printf("%ld %d %s\n", get_timestamp(philo->table), 
-		       philo->philo_id, message);
+		printf("%ld %d %s\n", get_timestamp(philo->table),
+			philo->philo_id, message);
 		sem_post(philo->table->message);
 	}
 }
@@ -55,36 +57,45 @@ void	cleanup_table(t_table *table)
 	free(table);
 }
 
-int	validate_arguments(int argc, char **argv)
+static int	control_number(int argc, char **argv)
 {
 	int	i;
 	int	value;
 
-	if (argc < 5 || argc > 6)
-	{
-		printf("Invalid Argument Usage.\n");
-		return (0);
-	}
 	i = 1;
 	while (i < argc)
 	{
 		if (!is_valid_number(argv[i]))
 		{
-			printf("'%s' is not a valid positive number\n", argv[i]);
+			printf(ERR_NUM);
 			return (0);
 		}
 		value = ft_atoi(argv[i]);
 		if (value <= 0)
 		{
-			printf("All arguments must be positive numbers\n");
+			printf(ERR_NEG);
 			return (0);
 		}
 		i++;
 	}
+	return (1);
+}
+
+int	validate_arguments(int argc, char **argv)
+{
+	int	value;
+
+	if (argc < 5 || argc > 6)
+	{
+		printf(ERR_INPUT);
+		return (0);
+	}
+	if (!control_number(argc, argv))
+		return (0);
 	value = ft_atoi(argv[1]);
 	if (value < 1 || value > 200)
 	{
-		printf("Number of philosophers must be between 1 and 200\n");
+		printf(ERR_PHI);
 		return (0);
 	}
 	return (1);
