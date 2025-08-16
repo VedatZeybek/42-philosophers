@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:38:44 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 12:56:49 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/16 16:25:38 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ static void	fill_philo_stats(t_table *table)
 		sem_unlink(name);
 		table->philo[i]->last_eat_sem = sem_open(name, O_CREAT, 0644, 1);
 		eat_count_name = ft_strjoin(name, "eat");
+		sem_unlink(eat_count_name);
 		table->philo[i]->eat_count_sem
 			= sem_open(eat_count_name, O_CREAT, 0644, 1);
 		free(name);

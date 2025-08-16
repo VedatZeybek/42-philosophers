@@ -8,7 +8,7 @@ BONUS_SRCS	=	$(BONUS_FILES)
 BONUS_OBJS	=	$(BONUS_SRCS:.c=.o)
 
 CC			=	cc
-CFLAGS		=	-Wall -Wextra -Werror
+CFLAGS		=	-Wall -Wextra -Werror  #-fsanitize=thread
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
