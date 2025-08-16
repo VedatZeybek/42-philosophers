@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:59:59 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 12:47:25 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/16 13:32:41 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,6 @@ void	cleanup_table(t_table *table);
 void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork);
 void	*death_checker(void *arg);
 t_table	*fill_table_stats(char **argv);
-int	get_death_value(t_table *table);
+int		get_death_value(t_table *table);
 
 #endif

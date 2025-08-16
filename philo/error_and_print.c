@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:53:50 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 09:53:51 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/16 13:33:09 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 void	safe_print(char *str, t_philo *philo)
 {
 	pthread_mutex_lock(&philo->table->print_mutex);
+	pthread_mutex_lock(&philo->table->simulation_end_mutex);
 	if (!philo->table->simulation_end)
 		printf("%ld %d %s\n", get_timestamp(philo->table), philo->philo_id, str);
 	pthread_mutex_unlock(&philo->table->print_mutex);
+	pthread_mutex_unlock(&philo->table->simulation_end_mutex);
 }
 
 void	cleanup_table(t_table *table)
@@ -33,6 +35,7 @@ void	cleanup_table(t_table *table)
 		i++;
 	}
 	pthread_mutex_destroy(&table->print_mutex);
+	pthread_mutex_destroy(&table->simulation_end_mutex);
 	free(table->forks);
 	free(table->philo);
 	free(table);

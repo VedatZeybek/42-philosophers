@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:53:41 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 12:51:43 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/16 13:33:03 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	get_death_value(t_table *table)
 {
-	int res;
+	int	res;
 
 	pthread_mutex_lock(&table->simulation_end_mutex);
 	res = table->simulation_end;
@@ -53,14 +53,16 @@ static int	is_dead(t_table *table, int i)
 	pthread_mutex_unlock(&table->philo[i]->last_eat_mutex);
 	if (time_diff > table->time_to_die)
 	{
-		pthread_mutex_lock(&table->print_mutex);
 		if (!get_death_value(table))
 		{
+			pthread_mutex_lock(&table->print_mutex);
 			printf("%ld %d died\n", get_timestamp(table),
 				table->philo[i]->philo_id);
+			pthread_mutex_unlock(&table->print_mutex);
+			pthread_mutex_lock(&table->simulation_end_mutex);
 			table->simulation_end = 1;
+			pthread_mutex_unlock(&table->simulation_end_mutex);
 		}
-		pthread_mutex_unlock(&table->print_mutex);
 		return (1);
 	}
 	return (0);
@@ -88,14 +90,13 @@ static void	death_cehcker_loop(t_table *table)
 	}
 }
 
-
 void	*death_checker(void *arg)
 {
 	t_table	*table;
 
 	table = (t_table *)(arg);
 	usleep(100);
-	while (!table->simulation_end)
+	while (!get_death_value(table))
 	{
 		death_cehcker_loop(table);
 		if (all_philos_finished_eat(table) && !get_death_value(table))

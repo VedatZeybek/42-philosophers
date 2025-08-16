@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:54:01 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 12:47:07 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/16 13:33:22 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,14 @@ static int	take_fork(t_philo *philo, int first_fork, int second_fork)
 {
 	pthread_mutex_lock(&philo->table->forks[first_fork]);
 	safe_print("has taken a fork", philo);
-	if (philo->table->simulation_end)
+	if (get_death_value(philo->table))
 	{
 		pthread_mutex_unlock(&philo->table->forks[first_fork]);
 		return (1);
 	}
 	pthread_mutex_lock(&philo->table->forks[second_fork]);
 	safe_print("has taken a fork", philo);
-	if (philo->table->simulation_end)
+	if (get_death_value(philo->table))
 	{
 		pthread_mutex_unlock(&philo->table->forks[first_fork]);
 		pthread_mutex_unlock(&philo->table->forks[second_fork]);
@@ -88,9 +88,14 @@ void	philo_life_cycle(t_philo *philo, int first_fork, int second_fork)
 		pthread_mutex_lock(&philo->eat_count_mutex);
 		eat_count = philo->eat_count;
 		pthread_mutex_unlock(&philo->eat_count_mutex);
+		pthread_mutex_lock(&philo->eat_count_mutex);
 		if (philo->table->cycle_count != -1
 			&& eat_count >= philo->table->cycle_count)
+		{
+			pthread_mutex_unlock(&philo->eat_count_mutex);
 			break ;
+		}
+		pthread_mutex_unlock(&philo->eat_count_mutex);
 		sleep_think(philo);
 	}
 }
