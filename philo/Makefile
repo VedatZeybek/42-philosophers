@@ -7,7 +7,7 @@ SRCS		=	$(FILES)
 OBJS		=	$(SRCS:.c=.o)
 
 CC			=	cc
-CFLAGS		=	-Wall -Wextra -Werror -fsanitize=thread
+CFLAGS		=	-Wall -Wextra -Werror #-fsanitize=thread
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
