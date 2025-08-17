@@ -69,5 +69,6 @@ void		philo_process(t_philo *philo);
 void		cleanup_table(t_table *table);
 void		kill_all_remaining_philosophers(pid_t *pids, int count);
 t_table		*fill_table_stats(char **argv);
+void		cleanup_semaphores(t_table *table);
 
 #endif

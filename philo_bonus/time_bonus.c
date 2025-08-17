@@ -47,3 +47,35 @@ void	kill_all_remaining_philosophers(pid_t *pids, int count)
 		i++;
 	}
 }
+
+void	cleanup_semaphores(t_table *table)
+{
+	int		i;
+	char	*temp;
+	char	*name;
+	char	*eat_name;
+	char	*eat_count_name;
+
+	sem_unlink("/forks");
+	sem_unlink("/death");
+	sem_unlink("/message");
+	sem_unlink("/death_flag_sem");
+	i = 0;
+	while (i < table->philo_count)
+	{
+		temp = ft_itoa(table->philo[i]->philo_id);
+		name = ft_strjoin("/", temp);
+		free(temp);
+		sem_unlink(name);
+		eat_name = ft_strjoin(name, "eat");
+		sem_unlink(eat_name);
+		eat_count_name = ft_strjoin(name, "eat");
+		sem_unlink(eat_count_name);
+		free(name);
+		free(eat_name);
+		free(eat_count_name);
+		sem_close(table->philo[i]->last_eat_sem);
+		sem_close(table->philo[i]->eat_count_sem);
+		i++;
+	}
+}
