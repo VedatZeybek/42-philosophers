@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:00:48 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/20 09:18:09 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/20 09:24:26 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,13 +48,31 @@ void	kill_all_remaining_philosophers(pid_t *pids, int count)
 	}
 }
 
-void	cleanup_semaphores(t_table *table)
+static void	cleanup_philosopher_semaphores(t_table *table, int i)
 {
-	int		i;
 	char	*temp;
 	char	*name;
 	char	*eat_name;
 	char	*eat_count_name;
+
+	temp = ft_itoa(table->philo[i]->philo_id);
+	name = ft_strjoin("/", temp);
+	free(temp);
+	sem_unlink(name);
+	eat_name = ft_strjoin(name, "eat");
+	sem_unlink(eat_name);
+	eat_count_name = ft_strjoin(name, "eat");
+	sem_unlink(eat_count_name);
+	free(name);
+	free(eat_name);
+	free(eat_count_name);
+	sem_close(table->philo[i]->last_eat_sem);
+	sem_close(table->philo[i]->eat_count_sem);
+}
+
+void	cleanup_semaphores(t_table *table)
+{
+	int	i;
 
 	sem_unlink("/forks");
 	sem_unlink("/death");
@@ -63,19 +81,7 @@ void	cleanup_semaphores(t_table *table)
 	i = 0;
 	while (i < table->philo_count)
 	{
-		temp = ft_itoa(table->philo[i]->philo_id);
-		name = ft_strjoin("/", temp);
-		free(temp);
-		sem_unlink(name);
-		eat_name = ft_strjoin(name, "eat");
-		sem_unlink(eat_name);
-		eat_count_name = ft_strjoin(name, "eat");
-		sem_unlink(eat_count_name);
-		free(name);
-		free(eat_name);
-		free(eat_count_name);
-		sem_close(table->philo[i]->last_eat_sem);
-		sem_close(table->philo[i]->eat_count_sem);
+		cleanup_philosopher_semaphores(table, i);
 		i++;
 	}
 }

@@ -6,18 +6,33 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:38:44 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/16 16:25:38 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/20 09:28:15 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers_bonus.h"
 
+static void	init_philosopher_semaphores(t_philo *philo)
+{
+	char	*temp;
+	char	*name;
+	char	*eat_count_name;
+
+	temp = ft_itoa(philo->philo_id);
+	name = ft_strjoin("/", temp);
+	free(temp);
+	sem_unlink(name);
+	philo->last_eat_sem = sem_open(name, O_CREAT, 0644, 1);
+	eat_count_name = ft_strjoin(name, "eat");
+	sem_unlink(eat_count_name);
+	philo->eat_count_sem = sem_open(eat_count_name, O_CREAT, 0644, 1);
+	free(name);
+	free(eat_count_name);
+}
+
 static void	fill_philo_stats(t_table *table)
 {
-	int		i;
-	char	*name;
-	char	*temp;
-	char	*eat_count_name;
+	int	i;
 
 	i = 0;
 	while (i < table->philo_count)
@@ -26,18 +41,8 @@ static void	fill_philo_stats(t_table *table)
 		table->philo[i]->philo_id = i + 1;
 		table->philo[i]->table = table;
 		table->philo[i]->last_eat_time = table->start_time;
-		temp = ft_itoa(table->philo[i]->philo_id);
-		name = ft_strjoin("/", temp);
-		free(temp);
-		sem_unlink(name);
-		table->philo[i]->last_eat_sem = sem_open(name, O_CREAT, 0644, 1);
-		eat_count_name = ft_strjoin(name, "eat");
-		sem_unlink(eat_count_name);
-		table->philo[i]->eat_count_sem
-			= sem_open(eat_count_name, O_CREAT, 0644, 1);
-		free(name);
-		free(eat_count_name);
 		table->philo[i]->eat_count = 0;
+		init_philosopher_semaphores(table->philo[i]);
 		i++;
 	}
 }
