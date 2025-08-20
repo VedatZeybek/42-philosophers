@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:36:50 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 10:44:32 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/20 15:38:58 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	one_philo(t_philo *philo)
 	return (0);
 }
 
-int	philo_eat(t_philo *philo)
+static int	handle_eating_process(t_philo *philo)
 {
 	sem_wait(philo->table->forks);
 	print_message(philo, "has taken a fork");
@@ -53,11 +53,19 @@ int	philo_eat(t_philo *philo)
 	usleep(1000 * philo->table->time_to_eat);
 	sem_post(philo->table->forks);
 	sem_post(philo->table->forks);
+	return (0);
+}
+
+int	philo_eat(t_philo *philo)
+{
+	handle_eating_process(philo);
 	sem_wait(philo->eat_count_sem);
 	if (philo->table->cycle_count != -1
 		&& philo->eat_count >= philo->table->cycle_count)
 	{
 		usleep(1000 * philo->table->time_to_eat);
+		if (philo->table->philo_count % 2 == 1)
+			usleep(1000 * philo->table->time_to_eat);
 		sem_wait(philo->table->message);
 		sem_post(philo->eat_count_sem);
 		return (1);

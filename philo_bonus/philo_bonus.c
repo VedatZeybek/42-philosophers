@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:35:52 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 10:35:53 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/20 15:03:55 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static int	wait_for_philosophers(pid_t *pids, t_table *table)
 	someone_died = 0;
 	while (!someone_died)
 	{
-		pid = waitpid(-1, &status, 0);
+		pid = waitpid(-1, &status, WNOHANG);
 		if (pid > 0)
 		{
 			if (WIFEXITED(status))
