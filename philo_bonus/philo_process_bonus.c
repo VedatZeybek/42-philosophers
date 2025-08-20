@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 10:35:56 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/12 17:21:20 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/20 13:49:57 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	philo_process(t_philo *philo)
 		return ;
 	}
 	if (philo->philo_id % 2 == 0)
-		usleep(500);
+		usleep(10000);
 	routine(philo);
 	pthread_join(monitor, NULL);
 	return ;
