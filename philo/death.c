@@ -6,7 +6,7 @@
 /*   By: vzeybek <vzeybek@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 09:53:41 by vzeybek           #+#    #+#             */
-/*   Updated: 2025/08/16 13:33:03 by vzeybek          ###   ########.fr       */
+/*   Updated: 2025/08/20 13:56:39 by vzeybek          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ static int	is_dead(t_table *table, int i)
 	return (0);
 }
 
-static void	death_cehcker_loop(t_table *table)
+static void	death_checker_loop(t_table *table)
 {
 	int		i;
 
@@ -98,7 +98,7 @@ void	*death_checker(void *arg)
 	usleep(100);
 	while (!get_death_value(table))
 	{
-		death_cehcker_loop(table);
+		death_checker_loop(table);
 		if (all_philos_finished_eat(table) && !get_death_value(table))
 		{
 			table->simulation_end = 1;
